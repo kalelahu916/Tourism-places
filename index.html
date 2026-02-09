@@ -13,6 +13,12 @@ input,button{
  border-radius:6px;font-size:16px;border:1px solid #ccc
 }
 button{background:#0d6efd;color:#fff;border:none}
+.tabs{display:flex;margin-top:10px}
+.tab{
+ flex:1;text-align:center;padding:10px;
+ background:#ddd;border-radius:6px;margin:2px;cursor:pointer
+}
+.tab.active{background:#0d6efd;color:#fff}
 .place{background:#fff;margin-top:10px;padding:10px;border-radius:6px}
 .small{font-size:13px;color:#555}
 #loader{text-align:center;font-size:18px;margin-top:15px;display:none}
@@ -25,79 +31,88 @@ button{background:#0d6efd;color:#fff;border:none}
 <header>🌍 Tourist Finder</header>
 
 <div class="container">
-<input id="city" placeholder="Enter city name (Delhi, Pune...)">
+<input id="city" placeholder="Enter city name">
 <button onclick="searchCity()">🔍 Search City</button>
-
 <button onclick="getLocation()">📡 Use My Location</button>
 
-<div id="loader">
- 🔍 Searching... <span class="spin">⏳</span>
+<div class="tabs">
+ <div class="tab active" id="tourTab" onclick="setMode('tourism')">🏞 Tourist</div>
+ <div class="tab" id="hotelTab" onclick="setMode('hotel')">🏨 Hotels</div>
 </div>
 
+<div id="loader">🔍 Searching... <span class="spin">⏳</span></div>
 <div id="results"></div>
 </div>
 
 <script>
+let mode="tourism";
+let currentPos=null;
+
+function setMode(m){
+ mode=m;
+ tourTab.classList.remove("active");
+ hotelTab.classList.remove("active");
+ if(m==="tourism") tourTab.classList.add("active");
+ else hotelTab.classList.add("active");
+ if(currentPos) showPlaces(currentPos);
+}
+
 async function searchCity(){
  let city=document.getElementById("city").value;
- if(!city){alert("Enter city name");return;}
+ if(!city) return alert("Enter city");
  loader.style.display="block";
- results.innerHTML="";
-
- const geo = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${city}`);
- const loc = await geo.json();
+ const geo=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${city}`);
+ const loc=await geo.json();
  if(!loc[0]){alert("City not found"); loader.style.display="none"; return;}
- showPlaces({coords:{latitude:loc[0].lat,longitude:loc[0].lon}});
+ currentPos={coords:{latitude:loc[0].lat,longitude:loc[0].lon}};
+ showPlaces(currentPos);
 }
 
 function getLocation(){
  loader.style.display="block";
- results.innerHTML="";
- navigator.geolocation.getCurrentPosition(showPlaces,()=>alert("Permission denied"));
+ navigator.geolocation.getCurrentPosition(p=>{
+   currentPos=p; showPlaces(p);
+ },()=>alert("Permission denied"));
 }
 
 async function showPlaces(pos){
  let lat=pos.coords.latitude;
  let lon=pos.coords.longitude;
 
- const query = `
+ let filter = mode==="tourism"
+  ? '["tourism"]'
+  : '["tourism"="hotel"]';
+
+ const query=`
  [out:json][timeout:20];
  (
-   node(around:50000,${lat},${lon})["tourism"];
+   node(around:50000,${lat},${lon})${filter};
  );
  out 50;`;
 
- const res = await fetch("https://overpass-api.de/api/interpreter",{
-   method:"POST",
-   body:query
- });
- const data = await res.json();
+ const res=await fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:query});
+ const data=await res.json();
 
- function dist(lat1,lon1,lat2,lon2){
-   let R=6371;
-   let dLat=(lat2-lat1)*Math.PI/180;
-   let dLon=(lon2-lon1)*Math.PI/180;
-   let a=Math.sin(dLat/2)**2+
-     Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
-     Math.sin(dLon/2)**2;
-   return R*(2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
+ function dist(a,b,c,d){
+  let R=6371,dLat=(c-a)*Math.PI/180,dLon=(d-b)*Math.PI/180;
+  let x=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R*(2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)));
  }
 
- let places=data.elements.map(p=>{
-   let d=dist(lat,lon,p.lat,p.lon);
-   return {name:p.tags.name||"Unnamed",distance:d};
- });
+ let places=data.elements.map(p=>({
+  name:p.tags.name||"Unnamed",
+  distance:dist(lat,lon,p.lat,p.lon)
+ }));
 
  places.sort((a,b)=>a.distance-b.distance);
 
  loader.style.display="none";
  results.innerHTML="";
-
  places.slice(0,30).forEach((p,i)=>{
-   results.innerHTML+=`
+  results.innerHTML+=`
    <div class="place">
-     <b>🏆 #${i+1} ${p.name}</b>
-     <div class="small">📏 ${p.distance.toFixed(1)} km away</div>
+    <b>🏆 #${i+1} ${p.name}</b>
+    <div class="small">📏 ${p.distance.toFixed(1)} km away</div>
    </div>`;
  });
 }
