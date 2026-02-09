@@ -80,8 +80,8 @@ async function showPlaces(pos){
  let lon=pos.coords.longitude;
 
  let filter = mode==="tourism"
-  ? '["tourism"]'
-  : '["tourism"="hotel"]';
+  ? '["tourism"~"attraction|museum|viewpoint|zoo|theme_park|park|fort|monument|temple"]'
+  : '["tourism"~"hotel|guest_house|resort"]';
 
  const query=`
  [out:json][timeout:20];
