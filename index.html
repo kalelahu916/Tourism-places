@@ -10,6 +10,7 @@ header{background:#0d6efd;color:#fff;text-align:center;padding:15px}
 .container{padding:15px}
 button{width:100%;padding:12px;background:#0d6efd;color:#fff;border:none;border-radius:6px;font-size:16px}
 .place{background:#fff;margin-top:10px;padding:10px;border-radius:6px}
+.small{font-size:13px;color:#555}
 </style>
 </head>
 
@@ -29,21 +30,19 @@ function getLocation(){
    return;
  }
  status.innerText="Getting your location...";
- navigator.geolocation.getCurrentPosition(showPlaces,err=>{
-   alert("Location permission denied");
- });
+ navigator.geolocation.getCurrentPosition(showPlaces,()=>alert("Permission denied"));
 }
 
 async function showPlaces(pos){
  let lat=pos.coords.latitude;
  let lon=pos.coords.longitude;
 
- status.innerText="Finding nearby tourist places...";
+ status.innerText="Searching within 250 km...";
 
  const query = `
  [out:json];
  (
-   node(around:5000,${lat},${lon})["tourism"];
+   node(around:250000,${lat},${lon})["tourism"];
  );
  out;`;
 
@@ -53,17 +52,32 @@ async function showPlaces(pos){
  });
  const data = await res.json();
 
+ function dist(lat1,lon1,lat2,lon2){
+   let R=6371;
+   let dLat=(lat2-lat1)*Math.PI/180;
+   let dLon=(lon2-lon1)*Math.PI/180;
+   let a=Math.sin(dLat/2)**2+
+     Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+     Math.sin(dLon/2)**2;
+   return R*(2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
+ }
+
+ let places=data.elements.map(p=>{
+   let d=dist(lat,lon,p.lat,p.lon);
+   return {name:p.tags.name||"Unnamed",distance:d};
+ });
+
+ places.sort((a,b)=>a.distance-b.distance);
+
  status.innerText="";
  results.innerHTML="";
 
- if(!data.elements.length){
-   results.innerHTML="No tourist places found nearby.";
-   return;
- }
-
- data.elements.slice(0,20).forEach((p,i)=>{
-   let name = p.tags.name || "Unnamed place";
-   results.innerHTML += `<div class="place">🏞 ${name}</div>`;
+ places.slice(0,30).forEach((p,i)=>{
+   results.innerHTML+=`
+   <div class="place">
+     <b>#${i+1} ${p.name}</b>
+     <div class="small">📏 ${p.distance.toFixed(1)} km away</div>
+   </div>`;
  });
 }
 </script>
