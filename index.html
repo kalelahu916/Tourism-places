@@ -3,12 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nearby Tourist Places</title>
+<title>Tourist Finder</title>
 <style>
 body{font-family:Arial;margin:0;background:#f2f2f2}
 header{background:#0d6efd;color:#fff;text-align:center;padding:15px;font-size:20px}
 .container{padding:15px}
-button{width:100%;padding:12px;background:#0d6efd;color:#fff;border:none;border-radius:6px;font-size:16px}
+input,button{
+ width:100%;padding:12px;margin-top:10px;
+ border-radius:6px;font-size:16px;border:1px solid #ccc
+}
+button{background:#0d6efd;color:#fff;border:none}
 .place{background:#fff;margin-top:10px;padding:10px;border-radius:6px}
 .small{font-size:13px;color:#555}
 #loader{text-align:center;font-size:18px;margin-top:15px;display:none}
@@ -18,24 +22,35 @@ button{width:100%;padding:12px;background:#0d6efd;color:#fff;border:none;border-
 </head>
 
 <body>
-<header>🌍 Nearby Tourist Places</header>
+<header>🌍 Tourist Finder</header>
 
 <div class="container">
+<input id="city" placeholder="Enter city name (Delhi, Pune...)">
+<button onclick="searchCity()">🔍 Search City</button>
+
 <button onclick="getLocation()">📡 Use My Location</button>
 
 <div id="loader">
-  🔍 Searching nearby places... <span class="spin">⏳</span>
+ 🔍 Searching... <span class="spin">⏳</span>
 </div>
 
 <div id="results"></div>
 </div>
 
 <script>
+async function searchCity(){
+ let city=document.getElementById("city").value;
+ if(!city){alert("Enter city name");return;}
+ loader.style.display="block";
+ results.innerHTML="";
+
+ const geo = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${city}`);
+ const loc = await geo.json();
+ if(!loc[0]){alert("City not found"); loader.style.display="none"; return;}
+ showPlaces({coords:{latitude:loc[0].lat,longitude:loc[0].lon}});
+}
+
 function getLocation(){
- if(!navigator.geolocation){
-   alert("Location not supported");
-   return;
- }
  loader.style.display="block";
  results.innerHTML="";
  navigator.geolocation.getCurrentPosition(showPlaces,()=>alert("Permission denied"));
@@ -46,9 +61,9 @@ async function showPlaces(pos){
  let lon=pos.coords.longitude;
 
  const query = `
- [out:json][timeout:25];
+ [out:json][timeout:20];
  (
-   node(around:250000,${lat},${lon})["tourism"];
+   node(around:50000,${lat},${lon})["tourism"];
  );
  out 50;`;
 
