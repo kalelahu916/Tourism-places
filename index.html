@@ -6,20 +6,27 @@
 <title>Nearby Tourist Places</title>
 <style>
 body{font-family:Arial;margin:0;background:#f2f2f2}
-header{background:#0d6efd;color:#fff;text-align:center;padding:15px}
+header{background:#0d6efd;color:#fff;text-align:center;padding:15px;font-size:20px}
 .container{padding:15px}
 button{width:100%;padding:12px;background:#0d6efd;color:#fff;border:none;border-radius:6px;font-size:16px}
 .place{background:#fff;margin-top:10px;padding:10px;border-radius:6px}
 .small{font-size:13px;color:#555}
+#loader{text-align:center;font-size:18px;margin-top:15px;display:none}
+.spin{animation:spin 1s linear infinite;display:inline-block}
+@keyframes spin{100%{transform:rotate(360deg)}}
 </style>
 </head>
 
 <body>
-<header>📍 Nearby Tourist Places</header>
+<header>🌍 Nearby Tourist Places</header>
 
 <div class="container">
 <button onclick="getLocation()">📡 Use My Location</button>
-<div id="status"></div>
+
+<div id="loader">
+  🔍 Searching nearby places... <span class="spin">⏳</span>
+</div>
+
 <div id="results"></div>
 </div>
 
@@ -29,7 +36,8 @@ function getLocation(){
    alert("Location not supported");
    return;
  }
- status.innerText="Getting your location...";
+ loader.style.display="block";
+ results.innerHTML="";
  navigator.geolocation.getCurrentPosition(showPlaces,()=>alert("Permission denied"));
 }
 
@@ -37,14 +45,12 @@ async function showPlaces(pos){
  let lat=pos.coords.latitude;
  let lon=pos.coords.longitude;
 
- status.innerText="Searching within 250 km...";
-
  const query = `
- [out:json];
+ [out:json][timeout:25];
  (
    node(around:250000,${lat},${lon})["tourism"];
  );
- out;`;
+ out 50;`;
 
  const res = await fetch("https://overpass-api.de/api/interpreter",{
    method:"POST",
@@ -69,13 +75,13 @@ async function showPlaces(pos){
 
  places.sort((a,b)=>a.distance-b.distance);
 
- status.innerText="";
+ loader.style.display="none";
  results.innerHTML="";
 
  places.slice(0,30).forEach((p,i)=>{
    results.innerHTML+=`
    <div class="place">
-     <b>#${i+1} ${p.name}</b>
+     <b>🏆 #${i+1} ${p.name}</b>
      <div class="small">📏 ${p.distance.toFixed(1)} km away</div>
    </div>`;
  });
