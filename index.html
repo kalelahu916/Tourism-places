@@ -1,173 +1,270 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mr">
 <head>
-<meta charset="UTF-8">
-<title>BAMS MCQ Practice</title>
-
-<style>
-body{
-  font-family: Arial, sans-serif;
-  text-align:center;
-  background: linear-gradient(120deg,#fdfbfb,#ebedee);
-}
-h1,h2{color:#222;}
-.grid{
-  display:grid;
-  grid-template-columns: repeat(2,1fr);
-  gap:15px;
-  max-width:330px;
-  margin:20px auto;
-}
-button{
-  padding:15px;
-  border:none;
-  background: linear-gradient(to right,#d3cce3,#e9e4f0);
-  color:#222;
-  font-size:16px;
-  border-radius:12px;
-  cursor:pointer;
-  box-shadow:0 4px 8px rgba(0,0,0,0.15);
-}
-button:hover{transform:scale(1.05);}
-#quizBox button{width:100%; margin:6px 0;}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MCQ अभ्यास 🧠🕉️ - आयुर्वेद विद्यार्थींसाठी</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    body { font-family: 'Poppins', sans-serif; background: linear-gradient(to bottom, #e0f7fa, #ffffff); margin:0; padding:20px; color:#333; }
+    .container { max-width:800px; margin:auto; background:white; padding:30px; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.1); text-align:center; }
+    h1, h2, h3 { color:#00695c; }
+    .subjects { display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:15px; margin:30px 0; }
+    button { background:#009688; color:white; border:none; padding:15px 25px; margin:10px; font-size:18px; border-radius:10px; cursor:pointer; transition:0.3s; }
+    button:hover { background:#00796b; transform:scale(1.05); }
+    select { padding:12px; font-size:18px; border-radius:8px; margin:20px 0; width:280px; }
+    .progress { font-size:20px; margin:20px 0; color:#555; }
+    #options div { margin:15px 0; font-size:18px; text-align:left; max-width:550px; margin-left:auto; margin-right:auto; }
+    input[type="radio"] { margin-right:12px; transform:scale(1.4); }
+    #next-btn { margin-top:30px; padding:15px 50px; font-size:20px; }
+    #result-screen h2 { font-size:2.8em; }
+  </style>
 </head>
-
 <body>
-
-<h1>📚 BAMS MCQ PRACTICE</h1>
-
-<div id="subjectBox">
-  <h2>Select Your Subject 👇</h2>
-  <div class="grid">
-    <button onclick="selectSubject('anatomy')">🦴 Anatomy (Rachana Sharir)</button>
-    <button onclick="selectSubject('physiology')">❤️ Physiology (Kriya Sharir)</button>
-    <button onclick="selectSubject('padarth')">📘 Padarth Vigyan</button>
-    <button onclick="selectSubject('sanskrit')">🕉️ Sanskrit</button>
-    <button onclick="selectSubject('samhita')">📜 Samhita</button>
+  <div class="container">
+    <h1>MCQ अभ्यास 🩺📚🕉️<br>आयुर्वेद आणि BAMS विद्यार्थींसाठी</h1>
+    
+    <!-- Subject Selection -->
+    <div id="subject-screen">
+      <h2>विषय निवडा 🔍</h2>
+      <div class="subjects">
+        <button onclick="selectSubject('anatomy')">Anatomy (रचना शारीर) 🦴</button>
+        <button onclick="selectSubject('kriya')">Physiology (क्रिया शारीर) ❤️</button>
+        <button onclick="selectSubject('padarth')">पदार्थ विज्ञान ⚛️</button>
+        <button onclick="selectSubject('sanskrit')">संस्कृत 🗣️</button>
+        <button onclick="selectSubject('samhita')">संहिता 📜</button>
+      </div>
+    </div>
+    
+    <!-- Kriya Shaarir Sub-Selection -->
+    <div id="kriya-sub-screen" style="display:none;">
+      <h2>क्रिया शारीर भाग निवडा</h2>
+      <div class="subjects">
+        <button onclick="selectKriyaPart('ayurvedic')">आयुर्वेदिक भाग</button>
+        <button onclick="selectKriyaPart('modern')">मॉडर्न भाग</button>
+        <button onclick="selectKriyaPart('mixed')">मिक्स्ड / संयुक्त</button>
+      </div>
+    </div>
+    
+    <!-- Number of Questions -->
+    <div id="num-screen" style="display:none;">
+      <h2 id="subject-title"></h2>
+      <h3>किती MCQ हवे? 🔢</h3>
+      <select id="num-questions">
+        <option value="10">१० प्रश्न ⚡ जलद सराव</option>
+        <option value="20">२० प्रश्न 🔥 मध्यम</option>
+        <option value="30">३० प्रश्न 🚀 चांगली तयारी</option>
+        <option value="40">४० प्रश्न 🏅 प्रगत</option>
+        <option value="50">५० प्रश्न 🌟 पूर्ण पॉवर</option>
+      </select>
+      <br><br>
+      <button onclick="startQuiz()">क्विझ सुरू करा! 🎯🚀</button>
+    </div>
+    
+    <!-- Quiz Screen -->
+    <div id="quiz-screen" style="display:none;">
+      <div class="progress">प्रश्न <span id="current">१</span> / <span id="total"></span> 📊</div>
+      <h2 id="question"></h2>
+      <div id="options"></div>
+      <button id="next-btn" onclick="nextQuestion()" disabled>पुढे ➡️</button>
+    </div>
+    
+    <!-- Result Screen -->
+    <div id="result-screen" style="display:none;">
+      <h2>क्विझ संपले! 🏁🥳</h2>
+      <p id="score-text"></p>
+      <button onclick="restart()">पुन्हा खेळा 🔄🕉️</button>
+    </div>
   </div>
-</div>
 
-<div id="partBox" style="display:none;">
-  <h2>Select Part 📖</h2>
-  <div class="grid">
-    <button onclick="selectPart('ayurvedic')">🌿 Ayurvedic Part</button>
-    <button onclick="selectPart('modern')">🔬 Modern Part</button>
-    <button onclick="selectPart('mixed')">🔀 Mixed</button>
-  </div>
-</div>
+  <script>
+    let currentSubject = '';
+    let kriyaPart = ''; // 'ayurvedic', 'modern', 'mixed'
+    let allQuestions = {
+      anatomy: [],
+      kriyaAyurvedic: [],
+      kriyaModern: [],
+      padarth: [],
+      sanskrit: [],
+      samhita: []
+    };
+    let questions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let selectedNum = 10;
 
-<div id="countBox" style="display:none;">
-  <h2>How many MCQs? 🤔</h2>
-  <div class="grid">
-    <button onclick="startQuiz(10)">10</button>
-    <button onclick="startQuiz(20)">20</button>
-    <button onclick="startQuiz(30)">30</button>
-    <button onclick="startQuiz(40)">40</button>
-    <button onclick="startQuiz(50)">50</button>
-  </div>
-</div>
+    // ------------------- Questions -------------------
+    
+    // Rachana Shaarir (Anatomy) - Marathi
+    allQuestions.anatomy = [
+      { question: "प्रौढ मानवी शरीरात एकूण किती हाडे असतात?", options: ["२०६", "२०८", "२१०", "२१२"], answer: "२०६" },
+      { question: "मानवी शरीरातील सर्वात लांब हाड कोणते?", options: ["फेमर", "टिबिया", "ह्यूमरस", "फायब्युला"], answer: "फेमर" },
+      { question: "हृदयात किती कप्पे असतात?", options: ["२", "३", "४", "५"], answer: "४" },
+      { question: "मेंदूचे संरक्षक आवरण काय?", options: ["मेनिंजेस", "पेरिकार्डियम", "प्ल्युरा", "पेरिटोनियम"], answer: "मेनिंजेस" },
+      { question: "शरीरातील सर्वात मोठा अवयव?", options: ["त्वचा", "यकृत", "फुफ्फुसे", "हृदय"], answer: "त्वचा" }
+    ];
 
-<div id="quizBox" style="display:none;">
-  <h2 id="question"></h2>
-  <div id="options"></div>
-  <button onclick="nextQuestion()">Next ➡️</button>
-</div>
+    // Kriya Shaarir - Ayurvedic Part (Marathi)
+    allQuestions.kriyaAyurvedic = [
+      { question: "त्रिदोष कोणते?", options: ["वात, पित्त, कफ", "रक्त, मांस, अस्थी", "अग्नी, ओजस, तेजस", "सत्व, रज, तम"], answer: "वात, पित्त, कफ" },
+      { question: "अग्नीचे मुख्य कार्य काय?", options: ["पचन आणि रूपांतर", "श्वसन", "रक्ताभिसरण", "हाड मजबूत करणे"], answer: "पचन आणि रूपांतर" },
+      { question: "ओजस म्हणजे काय?", options: ["रोगप्रतिकारक शक्ती आणि जीवनशक्ती", "विष", "कचरा", "वेदना"], answer: "रोगप्रतिकारक शक्ती आणि जीवनशक्ती" },
+      { question: "धातू किती प्रकारचे?", options: ["७", "५", "३", "९"], answer: "७" },
+      { question: "वात दोषाचे मुख्य गुण?", options: ["रूक्ष, लघु, शीत", "स्निग्ध, गुरु, उष्ण", "मंद, स्थिर", "तीक्ष्ण, द्रव"], answer: "रूक्ष, लघु, शीत" }
+    ];
 
-<div id="endBox" style="display:none;">
-  <h2 id="scoreText"></h2>
-  <button onclick="restartQuiz()">🔁 Restart</button>
-  <button onclick="goHome()">🏠 Home Page</button>
-</div>
+    // Kriya Shaarir - Modern Part (English)
+    allQuestions.kriyaModern = [
+      { question: "What is the normal human body temperature?", options: ["37°C", "36°C", "38°C", "35°C"], answer: "37°C" },
+      { question: "Insulin hormone is secreted by which gland?", options: ["Pancreas", "Thyroid", "Adrenal", "Pituitary"], answer: "Pancreas" },
+      { question: "Main function of Red Blood Cells (RBCs)?", options: ["Oxygen transport", "Immunity", "Blood clotting", "Digestion"], answer: "Oxygen transport" },
+      { question: "Functional unit of kidney?", options: ["Nephron", "Neuron", "Alveoli", "Osteon"], answer: "Nephron" },
+      { question: "Breathing rate is controlled by which part of brain?", options: ["Medulla oblongata", "Cerebellum", "Hypothalamus", "Cerebrum"], answer: "Medulla oblongata" }
+    ];
 
-<script>
-const data = {
- anatomy:{
-  ayurvedic:[{q:"Sharir is made of?",o:["Dosha Dhatu Mala","Agni","Indriya","Ojas"],a:0}],
-  modern:[{q:"How many bones in human body?",o:["206","208","210","200"],a:0}],
-  mixed:[{q:"Scapula is?",o:["Flat","Long","Short","Irregular"],a:0}]
- },
- physiology:{
-  ayurvedic:[{q:"Prana Vayu is related to?",o:["Respiration","Digestion","Circulation","Excretion"],a:0}],
-  modern:[{q:"Normal pulse rate?",o:["60-100","40-60","100-120","30-50"],a:0}],
-  mixed:[{q:"Heart is?",o:["Pump","Gland","Bone","Nerve"],a:0}]
- },
- padarth:{all:[{q:"त्रिदोष म्हणजे कोणते?",o:["वात पित्त कफ","रस रक्त","अग्नी","धातू"],a:0}]},
- sanskrit:{all:[{q:"रामः हा कोणता विभक्ती आहे?",o:["प्रथमा","द्वितीया","षष्ठी","सप्तमी"],a:0}]},
- samhita:{all:[{q:"चरकसंहिता कोणत्या शाखेशी संबंधित आहे?",o:["कायचिकित्सा","शल्य","शालाक्य","अगद"],a:0}]}
-};
+    // पदार्थ विज्ञान - Marathi
+    allQuestions.padarth = [
+      { question: "न्याय दर्शनानुसार पदार्थ किती?", options: ["७", "६", "९", "१६"], answer: "७" },
+      { question: "'द्रव्य' म्हणजे?", options: ["पदार्थ किंवा वस्तू", "गुण", "कर्म", "सामान्यता"], answer: "पदार्थ किंवा वस्तू" },
+      { question: "पंचमहाभूत किती?", options: ["५", "४", "३", "६"], answer: "५" },
+      { question: "गुण किती प्रकारचे?", options: ["२०", "१०", "५", "२५"], answer: "२०" }
+    ];
 
-let subject="", part="", questions=[], index=0, score=0, lastCount=0;
+    // संस्कृत - Marathi
+    allQuestions.sanskrit = [
+      { question: "'आयुर्वेद' चा अर्थ?", options: ["जीवन विज्ञान", "औषधी ज्ञान", "रोग अभ्यास", "योग सराव"], answer: "जीवन विज्ञान" },
+      { question: "'स्वास्थ्य' म्हणजे?", options: ["आरोग्य", "रोग", "औषध", "अन्न"], answer: "आरोग्य" },
+      { question: "'दोष' चा अर्थ?", options: ["असंतुलन कारक", "संतुलन", "ऊर्जा", "महाभूत"], answer: "असंतुलन कारक" }
+    ];
 
-function hideAll(){
-  ["subjectBox","partBox","countBox","quizBox","endBox"].forEach(id=>{
-    document.getElementById(id).style.display="none";
-  });
-}
+    // संहिता - Marathi
+    allQuestions.samhita = [
+      { question: "चरक संहिता मुख्य विषय?", options: ["कायचिकित्सा", "शल्य", "कौमारभृत्य", "अगदतंत्र"], answer: "कायचिकित्सा" },
+      { question: "हितायू चे मूल?", options: ["आरोग्य", "धर्म", "अर्थ", "काम"], answer: "आरोग्य" },
+      { question: "त्रिमर्म किती?", options: ["३", "५", "७", "९"], answer: "३" }
+    ];
 
-function selectSubject(sub){
-  subject=sub;
-  hideAll();
-  if(sub==="anatomy" || sub==="physiology"){
-    document.getElementById("partBox").style.display="block";
-  }else{
-    part="all";
-    document.getElementById("countBox").style.display="block";
-  }
-}
+    // ------------------- Logic -------------------
+    function selectSubject(subject) {
+      currentSubject = subject;
+      if (subject === 'kriya') {
+        document.getElementById('subject-screen').style.display = 'none';
+        document.getElementById('kriya-sub-screen').style.display = 'block';
+      } else {
+        showNumScreen(subject);
+      }
+    }
 
-function selectPart(p){
-  part=p;
-  hideAll();
-  document.getElementById("countBox").style.display="block";
-}
+    function selectKriyaPart(part) {
+      kriyaPart = part;
+      showNumScreen('kriya');
+    }
 
-function startQuiz(n){
-  lastCount=n;
-  let arr=data[subject][part];
-  questions=arr.slice(0,n);
-  index=0; score=0;
-  hideAll();
-  document.getElementById("quizBox").style.display="block";
-  showQuestion();
-}
+    function showNumScreen(sub) {
+      let title = '';
+      if (sub === 'anatomy') title = 'Anatomy (रचना शारीर)';
+      else if (sub === 'kriya') {
+        let partText = kriyaPart === 'ayurvedic' ? 'आयुर्वेदिक' : kriyaPart === 'modern' ? 'मॉडर्न' : 'मिक्स्ड';
+        title = `Physiology (क्रिया शारीर) - ${partText} भाग`;
+      }
+      else if (sub === 'padarth') title = 'पदार्थ विज्ञान';
+      else if (sub === 'sanskrit') title = 'संस्कृत';
+      else if (sub === 'samhita') title = 'संहिता';
 
-function showQuestion(){
-  let q=questions[index];
-  document.getElementById("question").innerText=q.q;
-  let opt=document.getElementById("options");
-  opt.innerHTML="";
-  q.o.forEach((op,i)=>{
-    let b=document.createElement("button");
-    b.innerText=op;
-    b.onclick=()=>check(i);
-    opt.appendChild(b);
-  });
-}
+      document.getElementById('subject-title').innerText = `निवडले: ${title} 🔥🧠`;
+      document.getElementById('subject-screen').style.display = 'none';
+      document.getElementById('kriya-sub-screen').style.display = 'none';
+      document.getElementById('num-screen').style.display = 'block';
+    }
 
-function check(i){
-  if(i===questions[index].a) score++;
-}
+    function startQuiz() {
+      selectedNum = parseInt(document.getElementById('num-questions').value);
+      let subjectQs = [];
 
-function nextQuestion(){
-  index++;
-  if(index<questions.length) showQuestion();
-  else{
-    hideAll();
-    document.getElementById("endBox").style.display="block";
-    document.getElementById("scoreText").innerText="🎯 Your Score: "+score+"/"+questions.length;
-  }
-}
+      if (currentSubject === 'kriya') {
+        if (kriyaPart === 'ayurvedic') subjectQs = allQuestions.kriyaAyurvedic;
+        else if (kriyaPart === 'modern') subjectQs = allQuestions.kriyaModern;
+        else subjectQs = [...allQuestions.kriyaAyurvedic, ...allQuestions.kriyaModern];
+      } else {
+        subjectQs = allQuestions[currentSubject] || [];
+      }
 
-function restartQuiz(){
-  startQuiz(lastCount);
-}
+      if (subjectQs.length === 0) {
+        alert('या भागात अद्याप प्रश्न नाहीत! 😅');
+        restart();
+        return;
+      }
 
-function goHome(){
-  hideAll();
-  document.getElementById("subjectBox").style.display="block";
-}
-</script>
+      questions = [...subjectQs].sort(() => Math.random() - 0.5).slice(0, Math.min(selectedNum, subjectQs.length));
 
+      document.getElementById('num-screen').style.display = 'none';
+      document.getElementById('quiz-screen').style.display = 'block';
+      currentIndex = 0;
+      score = 0;
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      const q = questions[currentIndex];
+      document.getElementById('question').innerHTML = `${currentIndex + 1}. ${q.question} 🤔`;
+      document.getElementById('current').innerText = currentIndex + 1;
+      document.getElementById('total').innerText = questions.length;
+
+      const optsDiv = document.getElementById('options');
+      optsDiv.innerHTML = '';
+
+      q.options.forEach((opt, i) => {
+        const div = document.createElement('div');
+        div.innerHTML = `<input type="radio" name="ans" value="${opt}" id="opt${i}" onchange="enableNext()"><label for="opt${i}">${opt}</label>`;
+        optsDiv.appendChild(div);
+      });
+
+      document.getElementById('next-btn').disabled = true;
+    }
+
+    function enableNext() {
+      document.getElementById('next-btn').disabled = false;
+    }
+
+    function nextQuestion() {
+      const selected = document.querySelector('input[name="ans"]:checked');
+      if (selected) {
+        const userAns = selected.value.trim();
+        const correct = questions[currentIndex].answer.trim();
+        if (userAns === correct) {
+          score++;
+          alert('बरोबर! ✅ +१ 🔥');
+        } else {
+          alert(`चुकीचे 😔\nयोग्य उत्तर: ${correct}`);
+        }
+      }
+      currentIndex++;
+      if (currentIndex < questions.length) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      document.getElementById('quiz-screen').style.display = 'none';
+      document.getElementById('result-screen').style.display = 'block';
+      const percent = (score / questions.length) * 100;
+      let msg = percent >= 80 ? '🥳🔥 मास्टर लेव्हल! अप्रतिम!' :
+                percent >= 50 ? '👍 चांगले! थोडा अधिक सराव.' :
+                '😅 सुरू ठेवा! अभ्यास चालू ठेवा 🕉️';
+      document.getElementById('score-text').innerHTML = `गुण: <b>${score} / ${questions.length}</b> (${percent.toFixed(0)}%)<br>${msg}`;
+    }
+
+    function restart() {
+      document.getElementById('result-screen').style.display = 'none';
+      document.getElementById('subject-screen').style.display = 'block';
+      document.getElementById('kriya-sub-screen').style.display = 'none';
+      currentSubject = '';
+      kriyaPart = '';
+      questions = [];
+      score = 0;
+    }
+  </script>
 </body>
-                                        </html>
+  </html>
