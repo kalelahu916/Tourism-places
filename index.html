@@ -95,7 +95,19 @@ button{
 </div>
 
 <script>
-const data={
+/* ================= SHUFFLE OPTIONS ================= */
+function shuffleQuestion(q){
+ let arr = q.o.map((opt,i)=>({t:opt,c:i===q.a}));
+ for(let i=arr.length-1;i>0;i--){
+  const j=Math.floor(Math.random()*(i+1));
+  [arr[i],arr[j]]=[arr[j],arr[i]];
+ }
+ q.o = arr.map(x=>x.t);
+ q.a = arr.findIndex(x=>x.c);
+}
+
+/* ================== DATA ================== */
+const data = {
  anatomy:{ ayurvedic:[
  {q:"शरीर कशापासून बनले आहे?",o:["दोष धातु मल","अग्नी","इंद्रिय","ओज"],a:0},
  {q:"धातू किती आहेत?",o:["7","5","3","10"],a:0},
@@ -211,37 +223,52 @@ let subject="",part="",questions=[],index=0,score=0,lastCount=0,answered=false,a
 function hideAll(){["subjectBox","partBox","countBox","quizBox","endBox"].forEach(id=>document.getElementById(id).style.display="none");}
 function selectSubject(s){subject=s;hideAll();if(s==="anatomy"||s==="physiology")document.getElementById("partBox").style.display="block";else{part="all";document.getElementById("countBox").style.display="block";}}
 function selectPart(p){part=p;hideAll();document.getElementById("countBox").style.display="block";}
+
 function startQuiz(n){
- lastCount=n;questions=[...data[subject][part]].sort(()=>0.5-Math.random()).slice(0,n);
- index=0;score=0;answered=false;hideAll();document.getElementById("quizBox").style.display="block";showQuestion();
+ lastCount=n;
+ questions=[...data[subject][part]].map(q=>{
+  let copy=JSON.parse(JSON.stringify(q));
+  shuffleQuestion(copy);
+  return copy;
+ }).sort(()=>0.5-Math.random()).slice(0,n);
+
+ index=0;score=0;answered=false;
+ hideAll();
+ document.getElementById("quizBox").style.display="block";
+ showQuestion();
 }
+
 function showQuestion(){
  answered=false;
  document.getElementById("question").innerText=questions[index].q;
- document.getElementById("funstrip").innerText = ["🧠✨📚🔍🧬🌿","💡🩺📖⚡🌼","🧪🔬📊🌟🍃","🦴❤️📘🕉📜"][index%4];
+ document.getElementById("funstrip").innerText=["🧠✨📚🔍🧬🌿","💡🩺📖⚡🌼","🧪🔬📊🌟🍃","🦴❤️📘🕉📜"][index%4];
  const opt=document.getElementById("options");opt.innerHTML="";
  questions[index].o.forEach((op,i)=>{const b=document.createElement("button");b.innerText=op;b.onclick=()=>check(i);opt.appendChild(b);});
 }
+
 function showPopup(msg,color,auto){
- autoNext = auto===true;
+ autoNext=auto===true;
  const p=document.getElementById("popup"),box=document.getElementById("popupBox"),txt=document.getElementById("popupText");
  box.className="popupBox "+color;txt.innerHTML=msg;p.style.display="flex";
 }
+
 function closePopup(){
  document.getElementById("popup").style.display="none";
  if(autoNext){autoNext=false;nextQuestion();}
 }
+
 function check(i){
- if(answered) return; answered=true;
+ if(answered)return;answered=true;
  const q=questions[index];
  if(i===q.a){score++;showPopup("✅ Correct!","green",true);}
  else showPopup("❌ Wrong!<br>Correct: "+q.o[q.a],"red",true);
 }
+
 function nextQuestion(){
  const q=questions[index];
  if(!answered){answered=true;showPopup("⏭ Skipped!<br>Correct: "+q.o[q.a],"purple",true);return;}
  index++;
- if(index<questions.length) showQuestion();
+ if(index<questions.length)showQuestion();
  else{
   hideAll();
   document.getElementById("endBox").style.display="block";
