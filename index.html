@@ -122,8 +122,9 @@
     let questions = [];
     let currentIndex = 0;
     let score = 0;
+    let hasAnswered = false;
 
-    // सर्व प्रश्न (पूर्ण)
+    // ------------------ तुझ्या मूळ प्रश्न येथे आहेत ------------------
     allQuestions.anatomyAyurvedic = [
       { question: "रचना शारीरानुसार शरीरातील सात धातू कोणते?", options: ["रस, रक्त, मांस, मेद, अस्थी, मज्जा, शुक्र", "वात, पित्त, कफ", "अग्नी, ओजस, तेजस", "सत्व, रज, तम"], answer: "रस, रक्त, मांस, मेद, अस्थी, मज्जा, शुक्र" },
       { question: "अस्थी धातूचे मुख्य स्थान कोणते?", options: ["हाडे", "त्वचा", "रक्त", "मांसपेशी"], answer: "हाडे" },
@@ -271,6 +272,7 @@
       document.getElementById('quiz-screen').style.display = 'block';
       currentIndex = 0;
       score = 0;
+      hasAnswered = false;
       loadQuestion();
     }
 
@@ -280,6 +282,7 @@
         return;
       }
 
+      hasAnswered = false;
       const q = questions[currentIndex];
       document.getElementById('question').innerHTML = `${currentIndex + 1}. ${q.question} 🤔`;
       document.getElementById('current').innerText = currentIndex + 1;
@@ -292,25 +295,24 @@
         const div = document.createElement('div');
         const inputId = `opt-${currentIndex}-${i}`;
         div.innerHTML = `
-          <input type="radio" name="ans-${currentIndex}" id="${inputId}" value="${opt}">
+          <input type="radio" name="ans" id="${inputId}" value="${opt}">
           <label for="${inputId}">${opt}</label>
         `;
 
-        div.addEventListener('click', function() {
+        div.addEventListener('click', function(e) {
+          if (hasAnswered) return;
           document.getElementById(inputId).checked = true;
+          hasAnswered = true;
+          document.getElementById('next-btn').disabled = false;
 
           const isCorrect = opt.trim() === q.answer.trim();
           showFeedback(isCorrect, q.answer, false);
-
-          document.getElementById('next-btn').disabled = true;
-
-          Array.from(optsDiv.children).forEach(child => child.style.pointerEvents = 'none');
         });
 
         optsDiv.appendChild(div);
       });
 
-      document.getElementById('next-btn').disabled = false;
+      document.getElementById('next-btn').disabled = true;
     }
 
     function showFeedback(isCorrect, correctAns, isSkip = false) {
@@ -332,17 +334,20 @@
 
       feedback.classList.add('show');
 
-      setTimeout(() => {
-        feedback.classList.remove('show');
-        currentIndex++;
-        loadQuestion();
-      }, 3500);
+      // फीडबॅक दिसत राहील, पण नेक्स्ट बटण दाबल्यावरच पुढे जाईल
     }
 
     function nextQuestion() {
-      const q = questions[currentIndex];
-      showFeedback(false, q.answer, true);
-      document.getElementById('next-btn').disabled = true;
+      if (!hasAnswered) {
+        const q = questions[currentIndex];
+        showFeedback(false, q.answer, true);
+      }
+
+      setTimeout(() => {
+        document.getElementById('feedback').classList.remove('show');
+        currentIndex++;
+        loadQuestion();
+      }, 1800);
     }
 
     function showResult() {
@@ -367,8 +372,8 @@
       document.getElementById('quiz-screen').style.display = 'block';
       currentIndex = 0;
       score = 0;
+      hasAnswered = false;
 
-      // पुन्हा तेच प्रश्न सेट घेऊन नव्याने shuffle करतो
       let subjectQs = [];
       if (currentSubject === 'anatomy' || currentSubject === 'kriya') {
         let ayurKey = currentSubject + 'Ayurvedic';
@@ -396,6 +401,7 @@
       questions = [];
       score = 0;
       currentIndex = 0;
+      hasAnswered = false;
     }
   </script>
 </body>
