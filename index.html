@@ -15,14 +15,13 @@ h1,h2{color:#222;}
   display:grid;
   grid-template-columns: repeat(2,1fr);
   gap:15px;
-  max-width:320px;
+  max-width:330px;
   margin:20px auto;
 }
 button{
   padding:15px;
   border:none;
-  background:#8e9eab;
-  background: linear-gradient(to right,#8e9eab,#eef2f3);
+  background: linear-gradient(to right,#d3cce3,#e9e4f0);
   color:#222;
   font-size:16px;
   border-radius:12px;
@@ -30,11 +29,7 @@ button{
   box-shadow:0 4px 8px rgba(0,0,0,0.15);
 }
 button:hover{transform:scale(1.05);}
-
-#quizBox button{
-  width:100%;
-  margin:6px 0;
-}
+#quizBox button{width:100%; margin:6px 0;}
 </style>
 </head>
 
@@ -42,7 +37,6 @@ button:hover{transform:scale(1.05);}
 
 <h1>📚 BAMS MCQ PRACTICE</h1>
 
-<!-- SUBJECT -->
 <div id="subjectBox">
   <h2>Select Your Subject 👇</h2>
   <div class="grid">
@@ -54,7 +48,6 @@ button:hover{transform:scale(1.05);}
   </div>
 </div>
 
-<!-- PART -->
 <div id="partBox" style="display:none;">
   <h2>Select Part 📖</h2>
   <div class="grid">
@@ -64,7 +57,6 @@ button:hover{transform:scale(1.05);}
   </div>
 </div>
 
-<!-- COUNT -->
 <div id="countBox" style="display:none;">
   <h2>How many MCQs? 🤔</h2>
   <div class="grid">
@@ -76,47 +68,46 @@ button:hover{transform:scale(1.05);}
   </div>
 </div>
 
-<!-- QUIZ -->
 <div id="quizBox" style="display:none;">
   <h2 id="question"></h2>
   <div id="options"></div>
   <button onclick="nextQuestion()">Next ➡️</button>
 </div>
 
+<div id="endBox" style="display:none;">
+  <h2 id="scoreText"></h2>
+  <button onclick="restartQuiz()">🔁 Restart</button>
+  <button onclick="goHome()">🏠 Home Page</button>
+</div>
+
 <script>
 const data = {
  anatomy:{
-  ayurvedic:[
-    {q:"Sharir is made of?", o:["Dosha Dhatu Mala","Agni","Indriya","Ojas"], a:0}
-  ],
-  modern:[
-    {q:"How many bones in human body?", o:["206","208","210","200"], a:0}
-  ],
-  mixed:[
-    {q:"Scapula is?", o:["Flat","Long","Short","Irregular"], a:0}
-  ]
+  ayurvedic:[{q:"Sharir is made of?",o:["Dosha Dhatu Mala","Agni","Indriya","Ojas"],a:0}],
+  modern:[{q:"How many bones in human body?",o:["206","208","210","200"],a:0}],
+  mixed:[{q:"Scapula is?",o:["Flat","Long","Short","Irregular"],a:0}]
  },
  physiology:{
-  ayurvedic:[
-    {q:"Prana Vayu is related to?", o:["Respiration","Digestion","Circulation","Excretion"], a:0}
-  ],
-  modern:[
-    {q:"Normal pulse rate?", o:["60-100","40-60","100-120","30-50"], a:0}
-  ],
-  mixed:[
-    {q:"Heart is?", o:["Pump","Gland","Bone","Nerve"], a:0}
-  ]
+  ayurvedic:[{q:"Prana Vayu is related to?",o:["Respiration","Digestion","Circulation","Excretion"],a:0}],
+  modern:[{q:"Normal pulse rate?",o:["60-100","40-60","100-120","30-50"],a:0}],
+  mixed:[{q:"Heart is?",o:["Pump","Gland","Bone","Nerve"],a:0}]
  },
- padarth:{all:[{q:"Tridosha are?",o:["Vata Pitta Kapha","Rasa Rakta","Agni","Dhatu"],a:0}]},
- sanskrit:{all:[{q:"रामः is?",o:["Nominative","Accusative","Genitive","Locative"],a:0}]},
- samhita:{all:[{q:"Charaka Samhita is of?",o:["Kaya Chikitsa","Shalya","Shalakya","Agada"],a:0}]}
+ padarth:{all:[{q:"त्रिदोष म्हणजे कोणते?",o:["वात पित्त कफ","रस रक्त","अग्नी","धातू"],a:0}]},
+ sanskrit:{all:[{q:"रामः हा कोणता विभक्ती आहे?",o:["प्रथमा","द्वितीया","षष्ठी","सप्तमी"],a:0}]},
+ samhita:{all:[{q:"चरकसंहिता कोणत्या शाखेशी संबंधित आहे?",o:["कायचिकित्सा","शल्य","शालाक्य","अगद"],a:0}]}
 };
 
-let subject="", part="", questions=[], index=0, score=0;
+let subject="", part="", questions=[], index=0, score=0, lastCount=0;
+
+function hideAll(){
+  ["subjectBox","partBox","countBox","quizBox","endBox"].forEach(id=>{
+    document.getElementById(id).style.display="none";
+  });
+}
 
 function selectSubject(sub){
   subject=sub;
-  document.getElementById("subjectBox").style.display="none";
+  hideAll();
   if(sub==="anatomy" || sub==="physiology"){
     document.getElementById("partBox").style.display="block";
   }else{
@@ -127,29 +118,30 @@ function selectSubject(sub){
 
 function selectPart(p){
   part=p;
-  document.getElementById("partBox").style.display="none";
+  hideAll();
   document.getElementById("countBox").style.display="block";
 }
 
 function startQuiz(n){
-  let arr = data[subject][part];
-  questions = arr.slice(0,n);
-  document.getElementById("countBox").style.display="none";
-  document.getElementById("quizBox").style.display="block";
+  lastCount=n;
+  let arr=data[subject][part];
+  questions=arr.slice(0,n);
   index=0; score=0;
+  hideAll();
+  document.getElementById("quizBox").style.display="block";
   showQuestion();
 }
 
 function showQuestion(){
-  let q = questions[index];
-  document.getElementById("question").innerText = q.q;
-  let optBox = document.getElementById("options");
-  optBox.innerHTML="";
+  let q=questions[index];
+  document.getElementById("question").innerText=q.q;
+  let opt=document.getElementById("options");
+  opt.innerHTML="";
   q.o.forEach((op,i)=>{
     let b=document.createElement("button");
     b.innerText=op;
     b.onclick=()=>check(i);
-    optBox.appendChild(b);
+    opt.appendChild(b);
   });
 }
 
@@ -160,9 +152,22 @@ function check(i){
 function nextQuestion(){
   index++;
   if(index<questions.length) showQuestion();
-  else alert("🎯 Your Score: "+score);
+  else{
+    hideAll();
+    document.getElementById("endBox").style.display="block";
+    document.getElementById("scoreText").innerText="🎯 Your Score: "+score+"/"+questions.length;
+  }
+}
+
+function restartQuiz(){
+  startQuiz(lastCount);
+}
+
+function goHome(){
+  hideAll();
+  document.getElementById("subjectBox").style.display="block";
 }
 </script>
 
 </body>
-</html>
+                                        </html>
