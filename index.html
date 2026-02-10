@@ -50,9 +50,7 @@ button{
  background:linear-gradient(135deg,#ffecd2,#fcb69f,#c2e9fb,#a1c4fd);
  box-shadow:0 6px 14px rgba(0,0,0,0.25);
 }
-button:active{transform:scale(0.95);}
 #options button{margin:10px 0;}
-
 .popup{
  position:fixed;top:0;left:0;width:100%;height:100%;
  display:none;align-items:center;justify-content:center;
@@ -127,51 +125,117 @@ const data={
   ayurvedic:[
    {q:"शरीर कशापासून बनले आहे?",o:["दोष धातु मल","अग्नी","इंद्रिय","ओज"],a:0},
    {q:"धातू किती आहेत?",o:["7","5","3","10"],a:0},
-   {q:"त्रिदोष म्हणजे?",o:["वात पित्त कफ","रस रक्त","अग्नी","धातू"],a:0}
+   {q:"त्रिदोष म्हणजे?",o:["वात पित्त कफ","रस रक्त","अग्नी","धातू"],a:0},
+   {q:"मल किती?",o:["3","5","7","9"],a:0},
+   {q:"रस धातूचे कार्य?",o:["पोषण","श्वसन","उत्सर्जन","चिंतन"],a:0},
+   {q:"रक्त धातू?",o:["जीवन","श्वसन","पचन","उत्सर्जन"],a:0},
+   {q:"मांस धातू?",o:["आच्छादन","श्वसन","गती","उत्सर्जन"],a:0},
+   {q:"मेद धातू?",o:["स्नेहन","श्वसन","रक्त","मल"],a:0},
+   {q:"अस्थी धातू?",o:["धारण","श्वसन","पचन","उत्सर्जन"],a:0},
+   {q:"मज्जा धातू?",o:["पूरण","श्वसन","पचन","मल"],a:0}
   ],
   modern:[
    {q:"How many bones?",o:["206","208","210","200"],a:0},
    {q:"Longest bone?",o:["Femur","Humerus","Tibia","Ulna"],a:0},
-   {q:"Skull bones?",o:["22","20","24","26"],a:0}
+   {q:"Skull bones?",o:["22","20","24","26"],a:0},
+   {q:"Vertebrae?",o:["33","30","32","34"],a:0},
+   {q:"Ribs?",o:["12 pairs","10","11","13"],a:0},
+   {q:"Clavicle is?",o:["Long","Flat","Short","Irregular"],a:0},
+   {q:"Scapula is?",o:["Flat","Long","Short","Irregular"],a:0},
+   {q:"Humerus part?",o:["Diaphysis","Epiphysis","Metaphysis","All"],a:3},
+   {q:"Carpal bones?",o:["8","6","7","9"],a:0},
+   {q:"Tarsal bones?",o:["7","8","6","9"],a:0}
   ],
   mixed:[
-   {q:"Scapula is?",o:["Flat","Long","Short","Irregular"],a:0},
    {q:"Heart is?",o:["Muscle","Bone","Nerve","Gland"],a:0},
-   {q:"Prana vayu is related to?",o:["Respiration","Digestion","Blood","Excretion"],a:0}
+   {q:"Prana vayu?",o:["Respiration","Digestion","Blood","Excretion"],a:0},
+   {q:"Scapula type?",o:["Flat","Long","Short","Irregular"],a:0},
+   {q:"Rakta dhatu?",o:["Life","Breath","Digestion","Waste"],a:0},
+   {q:"Femur?",o:["Thigh","Arm","Leg","Spine"],a:0},
+   {q:"Asthi dhatu?",o:["Support","Breath","Food","Waste"],a:0},
+   {q:"Clavicle bone?",o:["Shoulder","Hip","Knee","Foot"],a:0},
+   {q:"Mamsa dhatu?",o:["Cover","Breath","Food","Waste"],a:0},
+   {q:"Heart pumps?",o:["Blood","Air","Lymph","Urine"],a:0},
+   {q:"Oxygen binds?",o:["Hemoglobin","Plasma","Platelet","WBC"],a:0}
   ]
  },
  physiology:{
   ayurvedic:[
    {q:"प्राणवायूचे कार्य?",o:["श्वसन","पचन","रक्त","मल"],a:0},
-   {q:"समान वायूचे कार्य?",o:["पचन","श्वसन","रक्त","मल"],a:0},
-   {q:"अपान वायूचे कार्य?",o:["मलमूत्र विसर्जन","श्वसन","हृदय","पचन"],a:0}
+   {q:"समान वायू?",o:["पचन","श्वसन","रक्त","मल"],a:0},
+   {q:"अपान वायू?",o:["मलमूत्र विसर्जन","श्वसन","हृदय","पचन"],a:0},
+   {q:"उदान वायू?",o:["वाणी","पचन","रक्त","मल"],a:0},
+   {q:"व्यान वायू?",o:["संचार","श्वसन","पचन","मल"],a:0},
+   {q:"पित्त कार्य?",o:["पचन","श्वसन","रक्त","मल"],a:0},
+   {q:"कफ कार्य?",o:["स्थैर्य","श्वसन","पचन","मल"],a:0},
+   {q:"जठराग्नी?",o:["पचन","श्वसन","रक्त","मल"],a:0},
+   {q:"धात्वाग्नी?",o:["परिवर्तन","श्वसन","रक्त","मल"],a:0},
+   {q:"भूताग्नी?",o:["पचन","श्वसन","रक्त","मल"],a:0}
   ],
   modern:[
    {q:"Normal pulse?",o:["60-100","40-60","100-120","30-50"],a:0},
    {q:"Normal BP?",o:["120/80","140/90","90/60","100/70"],a:0},
-   {q:"RBC life?",o:["120 days","90","60","30"],a:0}
+   {q:"RBC life?",o:["120 days","90","60","30"],a:0},
+   {q:"Heart chambers?",o:["4","2","3","5"],a:0},
+   {q:"Normal temp?",o:["37°C","35","36","38"],a:0},
+   {q:"Respiration rate?",o:["12-20","8-10","20-30","5-10"],a:0},
+   {q:"Blood pH?",o:["7.35-7.45","6","8","5"],a:0},
+   {q:"WBC normal?",o:["4000-11000","2000","15000","3000"],a:0},
+   {q:"Platelets?",o:["150k-450k","50k","500k","100k"],a:0},
+   {q:"Hb normal?",o:["12-16","8-10","18-20","5-7"],a:0}
   ],
   mixed:[
    {q:"Heart is?",o:["Pump","Bone","Nerve","Gland"],a:0},
-   {q:"Respiration is?",o:["Energy","Growth","Excretion","Movement"],a:0},
-   {q:"Oxygen binds with?",o:["Hemoglobin","Plasma","Platelet","WBC"],a:0}
+   {q:"Respiration gives?",o:["Energy","Growth","Waste","Heat"],a:0},
+   {q:"Oxygen binds?",o:["Hemoglobin","Plasma","Platelet","WBC"],a:0},
+   {q:"Prana vayu?",o:["Respiration","Digestion","Blood","Waste"],a:0},
+   {q:"Blood carries?",o:["Oxygen","Urine","Bile","Sweat"],a:0},
+   {q:"Pulse shows?",o:["Heart rate","BP","Temp","Sugar"],a:0},
+   {q:"Asthi dhatu?",o:["Support","Breath","Food","Waste"],a:0},
+   {q:"Heart chambers?",o:["4","2","3","5"],a:0},
+   {q:"Normal BP?",o:["120/80","140/90","90/60","100/70"],a:0},
+   {q:"Respiration?",o:["Energy","Growth","Waste","Movement"],a:0}
   ]
  },
  padarth:{all:[
   {q:"त्रिदोष कोणते?",o:["वात पित्त कफ","रस रक्त","धातू","अग्नी"],a:0},
-  {q:"पंचमहाभूत?",o:["पृथ्वी आप तेज वायु आकाश","दोष","धातू","मल"],a:0}
+  {q:"पंचमहाभूत?",o:["पृथ्वी आप तेज वायु आकाश","दोष","धातू","मल"],a:0},
+  {q:"सप्तधातू?",o:["7","5","3","10"],a:0},
+  {q:"ओज म्हणजे?",o:["बल","मल","धातू","दोष"],a:0},
+  {q:"रसाचे कार्य?",o:["पोषण","मल","श्वसन","रक्त"],a:0},
+  {q:"रक्ताचे कार्य?",o:["जीवन","पचन","श्वसन","मल"],a:0},
+  {q:"मांसाचे कार्य?",o:["आच्छादन","श्वसन","मल","गती"],a:0},
+  {q:"मेदाचे कार्य?",o:["स्नेहन","श्वसन","पचन","मल"],a:0},
+  {q:"अस्थी कार्य?",o:["धारण","श्वसन","मल","गती"],a:0},
+  {q:"मज्जा कार्य?",o:["पूरण","श्वसन","पचन","मल"],a:0}
  ]},
  sanskrit:{all:[
   {q:"रामः कोणती विभक्ती?",o:["प्रथमा","द्वितीया","षष्ठी","सप्तमी"],a:0},
-  {q:"फलम् किम्?",o:["नाम","क्रियापद","विशेषण","अव्यय"],a:0}
+  {q:"फलम् किम्?",o:["नाम","क्रियापद","विशेषण","अव्यय"],a:0},
+  {q:"गच्छति किम्?",o:["क्रियापद","नाम","विशेषण","अव्यय"],a:0},
+  {q:"सुंदरः किम्?",o:["विशेषण","नाम","क्रिया","अव्यय"],a:0},
+  {q:"बालकः किम्?",o:["नाम","क्रिया","विशेषण","अव्यय"],a:0},
+  {q:"अहम् किम्?",o:["सर्वनाम","नाम","क्रिया","अव्यय"],a:0},
+  {q:"एवम् किम्?",o:["अव्यय","नाम","क्रिया","विशेषण"],a:0},
+  {q:"रामस्य किम्?",o:["षष्ठी","प्रथमा","तृतीया","सप्तमी"],a:0},
+  {q:"सीतया किम्?",o:["तृतीया","प्रथमा","द्वितीया","षष्ठी"],a:0},
+  {q:"ग्रामे किम्?",o:["सप्तमी","प्रथमा","तृतीया","षष्ठी"],a:0}
  ]},
  samhita:{all:[
   {q:"चरकसंहिता शाखा?",o:["कायचिकित्सा","शल्य","शालाक्य","अगद"],a:0},
-  {q:"सुश्रुत संहिता?",o:["शल्य","काय","बाल","अगद"],a:0}
+  {q:"सुश्रुत संहिता?",o:["शल्य","काय","बाल","अगद"],a:0},
+  {q:"अष्टांग हृदयम् लेखक?",o:["वाग्भट","चरक","सुश्रुत","काश्यप"],a:0},
+  {q:"काश्यप संहिता?",o:["बाल","काय","शल्य","अगद"],a:0},
+  {q:"चरक गुरू?",o:["आत्रेय","धन्वंतरी","वाग्भट","काश्यप"],a:0},
+  {q:"सुश्रुत गुरू?",o:["धन्वंतरी","आत्रेय","वाग्भट","काश्यप"],a:0},
+  {q:"त्रिसूत्री?",o:["हेतु लिंग औषध","दोष धातू मल","रस रक्त","पंचमहाभूत"],a:0},
+  {q:"कायचिकित्सा म्हणजे?",o:["अंतर्गत चिकित्सा","शल्य","शालाक्य","अगद"],a:0},
+  {q:"शालाक्य म्हणजे?",o:["नेत्र नास कर्ण","हाड","त्वचा","अगद"],a:0},
+  {q:"अगद तंत्र?",o:["विष चिकित्सा","शल्य","बाल","काय"],a:0}
  ]}
 };
 
-let subject="",part="",questions=[],index=0,score=0,lastCount=0,answered=false;
+let subject="",part="",questions=[],index=0,score=0,lastCount=0,answered=false,autoNext=false;
 
 function hideAll(){["subjectBox","partBox","countBox","quizBox","endBox"].forEach(id=>document.getElementById(id).style.display="none");}
 function selectSubject(s){subject=s;hideAll();if(s==="anatomy"||s==="physiology")document.getElementById("partBox").style.display="block";else{part="all";document.getElementById("countBox").style.display="block";}}
@@ -197,6 +261,7 @@ function showQuestion(){
  });
 }
 function showPopup(msg,color){
+ autoNext=true;
  let p=document.getElementById("popup");
  let box=document.getElementById("popupBox");
  let txt=document.getElementById("popupText");
@@ -204,7 +269,10 @@ function showPopup(msg,color){
  txt.innerHTML=msg;
  p.style.display="flex";
 }
-function closePopup(){document.getElementById("popup").style.display="none";}
+function closePopup(){
+ document.getElementById("popup").style.display="none";
+ if(autoNext){autoNext=false;nextQuestion();}
+}
 function check(i){
  if(answered) return;
  answered=true;
