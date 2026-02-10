@@ -37,7 +37,7 @@
     }
     button:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.5); }
 
-    /* Subject buttons */
+    /* Subject buttons colors */
     button[data-subject="anatomy"] { background: #f4d03f; color: #1a1a1a; }
     button[data-subject="anatomy"]:hover { background: #f1c40f; }
 
@@ -102,7 +102,7 @@
 
     label { display: block; cursor: pointer; width: 100%; }
 
-    /* Feedback message - 3 sec */
+    /* Feedback popup */
     #feedback {
       position: fixed;
       top: 50%;
@@ -201,7 +201,7 @@
     let currentIndex = 0;
     let score = 0;
 
-    // Full 10 questions each (no shortcut)
+    // Full 10 questions each
     allQuestions.anatomyAyurvedic = [
       { question: "रचना शारीरानुसार शरीरातील सात धातू कोणते?", options: ["रस, रक्त, मांस, मेद, अस्थी, मज्जा, शुक्र", "वात, पित्त, कफ", "अग्नी, ओजस, तेजस", "सत्व, रज, तम"], answer: "रस, रक्त, मांस, मेद, अस्थी, मज्जा, शुक्र" },
       { question: "अस्थी धातूचे मुख्य स्थान कोणते?", options: ["हाडे", "त्वचा", "रक्त", "मांसपेशी"], answer: "हाडे" },
@@ -236,7 +236,7 @@
       { question: "वात दोषाचे मुख्य गुण?", options: ["रूक्ष, लघु, शीत", "स्निग्ध, गुरु, उष्ण", "मंद, स्थिर", "तीक्ष्ण, द्रव"], answer: "रूक्ष, लघु, शीत" },
       { question: "पित्त दोषाचे मुख्य गुण?", options: ["उष्ण, तीक्ष्ण, द्रव", "रूक्ष, शीत", "गुरु, मंद", "लघु, स्थिर"], answer: "उष्ण, तीक्ष्ण, द्रव" },
       { question: "कफ दोषाचे मुख्य गुण?", options: ["स्निग्ध, गुरु, शीत", "रूक्ष, लघु", "तीक्ष्ण, उष्ण", "द्रव, मंद"], answer: "स्निग्ध, गुरु, शीत" },
-      { question: "प्राण वायूचे मुख्य कार्य?", options: ["श्वसन आणि हृदयाचे कार्य", "पचन", "उत्सर्जन", "रक्त निर्मिती"], answer: "श्वसन और हृदयाचे कार्य" },
+      { question: "प्राण वायूचे मुख्य कार्य?", options: ["श्वसन आणि हृदयाचे कार्य", "पचन", "उत्सर्जन", "रक्त निर्मिती"], answer: "श्वसन आणि हृदयाचे कार्य" },
       { question: "समाना वायूचे कार्य?", options: ["पचन और अवशोषण", "श्वसन", "उत्सर्जन", "रक्ताभिसरण"], answer: "पचन और अवशोषण" },
       { question: "अपाना वायूचे कार्य?", options: ["मल-मूत्र उत्सर्जन", "पचन", "श्वसन", "रक्त निर्मिती"], answer: "मल-मूत्र उत्सर्जन" }
     ];
@@ -372,29 +372,13 @@
         div.onclick = () => {
           document.getElementById('opt' + i).checked = true;
           document.getElementById('next-btn').disabled = false;
-          // Optional: auto next if you want, but keeping next button for now
+          // Auto feedback on click
+          showFeedback(opt.trim() === q.answer.trim(), q.answer);
         };
         optsDiv.appendChild(div);
       });
 
       document.getElementById('next-btn').disabled = true;
-    }
-
-    function nextQuestion() {
-      const selected = document.querySelector('input[name="ans"]:checked');
-      if (selected) {
-        const userAns = selected.value.trim();
-        const correct = questions[currentIndex].answer.trim();
-        showFeedback(userAns === correct, correct);
-      } else {
-        // No selection - move next
-        currentIndex++;
-        if (currentIndex < questions.length) {
-          loadQuestion();
-        } else {
-          showResult();
-        }
-      }
     }
 
     function showFeedback(isCorrect, correctAns) {
@@ -421,6 +405,27 @@
           showResult();
         }
       }, 3000); // 3 seconds
+    }
+
+    function nextQuestion() {
+      const selected = document.querySelector('input[name="ans"]:checked');
+      if (selected) {
+        // If already selected, feedback already shown on click
+        // Just move next
+        currentIndex++;
+        if (currentIndex < questions.length) {
+          loadQuestion();
+        } else {
+          showResult();
+        }
+      } else {
+        currentIndex++;
+        if (currentIndex < questions.length) {
+          loadQuestion();
+        } else {
+          showResult();
+        }
+      }
     }
 
     function showResult() {
