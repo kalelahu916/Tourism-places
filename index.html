@@ -59,7 +59,7 @@
     .count-buttons button { background: linear-gradient(45deg, #2a9d8f, #168a78); color: white; }
     .start-btn { background: linear-gradient(45deg, #f4a261, #e76f51); font-size: 24px; padding: 20px 70px; color: white; }
 
-    .restart-buttons button { background: linear-gradient(45deg, #e63946, #d00000); margin: 15px; font-size: 20px; padding: 16px 45px; color: white; }
+    .restart-buttons button { background: linear-gradient(45deg, #e63946, #d00000); margin: 15px; font-size: 20px; padding: 16px 45px; color: white; cursor: pointer; }
     .restart-buttons .home { background: linear-gradient(45deg, #457b9d, #1d3557); color: white; }
 
     #next-btn { 
@@ -76,7 +76,6 @@
       cursor: not-allowed;
       opacity: 0.6;
     }
-    #next-btn:hover:not(:disabled) { background: linear-gradient(45deg, #ff8500, #e65100); }
 
     .progress { font-size: 22px; margin: 25px 0; color: #2a9d8f; }
 
@@ -87,13 +86,14 @@
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
-      padding: 16px 16px 16px 60px;
+      padding: 20px 20px 20px 70px;
       border-radius: 12px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.15);
       cursor: pointer;
       transition: all 0.2s ease;
       color: #2c3e50;
       position: relative;
+      user-select: none;
     }
     #options div:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
 
@@ -104,13 +104,15 @@
 
     input[type="radio"] {
       position: absolute;
-      left: 20px;
+      left: 25px;
       top: 50%;
       transform: translateY(-50%);
-      transform: scale(1.6);
+      scale: 1.8;
+      accent-color: #2a9d8f;
     }
 
-    label { display: block; cursor: pointer; width: 100%; }
+    #score-display { font-size: 28px; font-weight: bold; color: #264653; margin: 20px 0; }
+    #motivation-msg { font-size: 22px; color: #2a9d8f; font-weight: 600; }
 
     #feedback {
       position: fixed;
@@ -119,20 +121,21 @@
       transform: translate(-50%, -50%);
       font-size: 2.8em;
       font-weight: bold;
-      padding: 30px 60px;
+      padding: 35px 70px;
       border-radius: 20px;
       color: white;
       z-index: 1000;
       opacity: 0;
-      transition: opacity 0.5s;
+      transition: opacity 0.6s;
       box-shadow: 0 10px 40px rgba(0,0,0,0.5);
       text-align: center;
-      min-width: 400px;
+      min-width: 450px;
+      line-height: 1.4;
     }
     #feedback.show { opacity: 1; }
 
-    #feedback.correct { background: rgba(76, 175, 80, 0.95); }
-    #feedback.wrong { background: rgba(244, 67, 54, 0.95); }
+    #feedback.correct { background: rgba(76, 175, 80, 0.97); }
+    #feedback.wrong { background: rgba(244, 67, 54, 0.97); }
   </style>
 </head>
 <body>
@@ -177,7 +180,7 @@
       <div class="progress">प्रश्न <span id="current">१</span> / <span id="total"></span> 📊</div>
       <h2 id="question"></h2>
       <div id="options"></div>
-      <button id="next-btn" onclick="nextQuestion()" disabled>पुढे ➡️ (उत्तर माहीत नसेल तर)</button>
+      <button id="next-btn" onclick="nextQuestion()" disabled>पुढे ➡️ (skip साठी)</button>
     </div>
     
     <div id="result-screen" style="display:none;">
@@ -210,7 +213,6 @@
     let currentIndex = 0;
     let score = 0;
 
-    // ------------------- सर्व प्रश्न -------------------
     allQuestions.anatomyAyurvedic = [
       { question: "रचना शारीरानुसार शरीरातील सात धातू कोणते?", options: ["रस, रक्त, मांस, मेद, अस्थी, मज्जा, शुक्र", "वात, पित्त, कफ", "अग्नी, ओजस, तेजस", "सत्व, रज, तम"], answer: "रस, रक्त, मांस, मेद, अस्थी, मज्जा, शुक्र" },
       { question: "अस्थी धातूचे मुख्य स्थान कोणते?", options: ["हाडे", "त्वचा", "रक्त", "मांसपेशी"], answer: "हाडे" },
@@ -323,10 +325,7 @@
     }
 
     function showNumScreen(sub) {
-      let title = '';
-      if (sub === 'padarth') title = 'पदार्थ विज्ञान';
-      else if (sub === 'sanskrit') title = 'संस्कृत';
-      else if (sub === 'samhita') title = 'संहिता';
+      let title = sub === 'padarth' ? 'पदार्थ विज्ञान' : sub === 'sanskrit' ? 'संस्कृत' : 'संहिता';
       document.getElementById('subject-title').innerText = `निवडले: ${title} 🔥🧠`;
       document.getElementById('subject-screen').style.display = 'none';
       document.getElementById('num-screen').style.display = 'block';
@@ -339,7 +338,6 @@
 
     function startQuiz() {
       let subjectQs = [];
-
       if (currentSubject === 'anatomy' || currentSubject === 'kriya') {
         let ayurKey = currentSubject + 'Ayurvedic';
         let modKey = currentSubject + 'Modern';
@@ -379,25 +377,25 @@
       const optsDiv = document.getElementById('options');
       optsDiv.innerHTML = '';
 
-      let hasAnswered = false;
-
       q.options.forEach((opt, i) => {
         const div = document.createElement('div');
         const inputId = `opt-${currentIndex}-${i}`;
         div.innerHTML = `
-          <input type="radio" name="ans-${currentIndex}" value="${opt}" id="${inputId}">
+          <input type="radio" name="ans" id="${inputId}" value="${opt}">
           <label for="${inputId}">${opt}</label>
         `;
 
         div.addEventListener('click', function() {
-          if (hasAnswered) return;
           document.getElementById(inputId).checked = true;
-          hasAnswered = true;
 
           const isCorrect = opt.trim() === q.answer.trim();
-          showFeedback(isCorrect, q.answer);
+          showFeedback(isCorrect, q.answer, false);
 
           document.getElementById('next-btn').disabled = true;
+
+          Array.from(optsDiv.children).forEach(child => {
+            child.style.pointerEvents = 'none';
+          });
         });
 
         optsDiv.appendChild(div);
@@ -406,7 +404,7 @@
       document.getElementById('next-btn').disabled = false;
     }
 
-    function showFeedback(isCorrect, correctAns) {
+    function showFeedback(isCorrect, correctAns, isSkip = false) {
       const feedback = document.getElementById('feedback');
       feedback.classList.remove('correct', 'wrong');
 
@@ -415,7 +413,11 @@
         feedback.innerHTML = '✅ बरोबर!<br>+१ गुण 🔥';
         feedback.classList.add('correct');
       } else {
-        feedback.innerHTML = '❌ चुकीचे!<br>योग्य उत्तर: ' + correctAns;
+        if (isSkip) {
+          feedback.innerHTML = 'Skipped!<br>योग्य उत्तर: ' + correctAns;
+        } else {
+          feedback.innerHTML = '❌ चुकीचे!<br>योग्य उत्तर: ' + correctAns;
+        }
         feedback.classList.add('wrong');
       }
 
@@ -425,12 +427,13 @@
         feedback.classList.remove('show');
         currentIndex++;
         loadQuestion();
-      }, 3500); // 3.5 सेकंद
+      }, 3500);
     }
 
     function nextQuestion() {
-      currentIndex++;
-      loadQuestion();
+      const q = questions[currentIndex];
+      showFeedback(false, q.answer, true);
+      document.getElementById('next-btn').disabled = true;
     }
 
     function showResult() {
@@ -438,14 +441,14 @@
       document.getElementById('result-screen').style.display = 'block';
 
       const percent = (score / questions.length) * 100;
-      document.getElementById('score-display').innerHTML = `तुमचे गुण: <b>${score} / ${questions.length}</b> (${percent.toFixed(0)}%)`;
+      document.getElementById('score-display').innerHTML = `गुण: ${score} / ${questions.length} (${percent.toFixed(0)}%)`;
 
       let msg = '';
-      if (percent >= 90) msg = "वाह! उत्कृष्ट काम! 🌟 तू खूप मेहनती आहेस!";
-      else if (percent >= 75) msg = "छान प्रयत्न! 👏 अजून थोडा सराव आणि तू टॉपला जाशील!";
-      else if (percent >= 60) msg = "चांगले आहे! पण अजून मेहनत घे, यश नक्की मिळेल 💪";
-      else if (percent >= 40) msg = "अजून थोडी मेहनत हवी! प्रत्येक चुकीतून शिकत जा 📚";
-      else msg = "कोणतीही समस्या नाही! सराव सुरू ठेव, लवकरच सुधारणा दिसेल! 🕉️";
+      if (percent >= 90) msg = "उत्कृष्ट! 🌟";
+      else if (percent >= 75) msg = "छान प्रयत्न! 👏";
+      else if (percent >= 60) msg = "चांगलं आहे 💪";
+      else if (percent >= 40) msg = "अजून मेहनत हवी 📚";
+      else msg = "सराव चालू ठेवा! 🕉️";
 
       document.getElementById('motivation-msg').innerText = msg;
     }
@@ -472,13 +475,16 @@
 
     function restart() {
       document.getElementById('result-screen').style.display = 'none';
-      document.getElementById('subject-screen').style.display = 'block';
-      document.getElementById('sub-screen').style.display = 'none';
       document.getElementById('quiz-screen').style.display = 'none';
+      document.getElementById('num-screen').style.display = 'none';
+      document.getElementById('sub-screen').style.display = 'none';
+      document.getElementById('subject-screen').style.display = 'block';
       currentSubject = '';
       currentPart = '';
+      selectedNum = 10;
       questions = [];
       score = 0;
+      currentIndex = 0;
     }
   </script>
 </body>
