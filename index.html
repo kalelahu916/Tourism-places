@@ -28,12 +28,10 @@
     #sub-screen button:nth-child(3) { background: linear-gradient(45deg, #ff7043, #ab47bc); color: #000000; font-weight: 600; }
     .count-buttons button { background: linear-gradient(45deg, #2a9d8f, #168a78); color: white; }
     .start-btn { background: linear-gradient(45deg, #f4a261, #e76f51); font-size: 24px; padding: 20px 70px; color: white; }
-    .restart-buttons button { margin: 15px; font-size: 20px; padding: 16px 45px; color: white; cursor: pointer; font-weight: 600; }
-    #restart-btn { background: linear-gradient(45deg, #667eea, #764ba2); }
-    #restart-btn:hover { background: linear-gradient(45deg, #5a67d8, #6b46c1); }
-    #home-btn { background: linear-gradient(45deg, #48bb78, #38a169); }
-    #home-btn:hover { background: linear-gradient(45deg, #38a169, #2f855a); }
-    #next-btn { margin-top: 35px; padding: 18px 60px; font-size: 22px; background: linear-gradient(45deg, #ed8936, #f6ad55); color: #000000 !important; font-weight: 600; cursor: pointer; }
+    .restart-buttons button { background: linear-gradient(45deg, #e63946, #d00000); margin: 15px; font-size: 20px; padding: 16px 45px; color: white; cursor: pointer; }
+    .restart-buttons .home { background: linear-gradient(45deg, #457b9d, #1d3557); color: white; }
+    #next-btn { margin-top: 35px; padding: 18px 60px; font-size: 22px; background: linear-gradient(45deg, #ff9f1c, #ff6b35); color: #000000 !important; font-weight: 600; cursor: pointer; }
+    #next-btn:disabled { background: #ccc; cursor: not-allowed; opacity: 0.6; }
     .progress { font-size: 22px; margin: 25px 0; color: #2a9d8f; }
     #options div { margin: 18px 0; font-size: 19px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto; padding: 20px 20px 20px 70px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); cursor: pointer; transition: all 0.2s ease; color: #2c3e50; position: relative; user-select: none; }
     #options div:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
@@ -92,7 +90,7 @@
       <div class="progress">प्रश्न <span id="current">१</span> / <span id="total"></span> 📊</div>
       <h2 id="question"></h2>
       <div id="options"></div>
-      <button id="next-btn" onclick="nextQuestion()">पुढे ➡️ (skip साठी)</button>
+      <button id="next-btn" onclick="nextQuestion()" disabled>पुढे ➡️ (skip साठी)</button>
     </div>
     
     <div id="result-screen" style="display:none;">
@@ -100,8 +98,8 @@
       <p id="score-display"></p>
       <p id="motivation-msg"></p>
       <div class="restart-buttons">
-        <button id="restart-btn" onclick="restartSameQuiz()">Same Quiz Restart 🔄</button>
-        <button id="home-btn" onclick="goToHome()">Homepage 🏠</button>
+        <button onclick="restartSameQuiz()">Same Quiz Restart 🔄</button>
+        <button class="home" onclick="restart()">Homepage 🏠</button>
       </div>
     </div>
 
@@ -124,9 +122,8 @@
     let questions = [];
     let currentIndex = 0;
     let score = 0;
-    let hasAnswered = false;
 
-    // सर्व प्रश्न (तुझ्या मूळ कोडप्रमाणे पूर्ण)
+    // सर्व प्रश्न (पूर्ण)
     allQuestions.anatomyAyurvedic = [
       { question: "रचना शारीरानुसार शरीरातील सात धातू कोणते?", options: ["रस, रक्त, मांस, मेद, अस्थी, मज्जा, शुक्र", "वात, पित्त, कफ", "अग्नी, ओजस, तेजस", "सत्व, रज, तम"], answer: "रस, रक्त, मांस, मेद, अस्थी, मज्जा, शुक्र" },
       { question: "अस्थी धातूचे मुख्य स्थान कोणते?", options: ["हाडे", "त्वचा", "रक्त", "मांसपेशी"], answer: "हाडे" },
@@ -251,10 +248,20 @@
     }
 
     function startQuiz() {
-      let subjectQs = getSubjectQuestions();
+      let subjectQs = [];
+      if (currentSubject === 'anatomy' || currentSubject === 'kriya') {
+        let ayurKey = currentSubject + 'Ayurvedic';
+        let modKey = currentSubject + 'Modern';
+        if (currentPart === 'ayurvedic') subjectQs = allQuestions[ayurKey];
+        else if (currentPart === 'modern') subjectQs = allQuestions[modKey];
+        else subjectQs = [...allQuestions[ayurKey], ...allQuestions[modKey]];
+      } else {
+        subjectQs = allQuestions[currentSubject] || [];
+      }
+
       if (subjectQs.length === 0) {
-        alert('या भागात प्रश्न नाहीत!');
-        goToHome();
+        alert('या भागात अद्याप प्रश्न नाहीत! 😅');
+        restart();
         return;
       }
 
@@ -264,19 +271,7 @@
       document.getElementById('quiz-screen').style.display = 'block';
       currentIndex = 0;
       score = 0;
-      hasAnswered = false;
       loadQuestion();
-    }
-
-    function getSubjectQuestions() {
-      if (currentSubject === 'anatomy' || currentSubject === 'kriya') {
-        let ayurKey = currentSubject + 'Ayurvedic';
-        let modKey = currentSubject + 'Modern';
-        if (currentPart === 'ayurvedic') return allQuestions[ayurKey] || [];
-        if (currentPart === 'modern') return allQuestions[modKey] || [];
-        return [...(allQuestions[ayurKey] || []), ...(allQuestions[modKey] || [])];
-      }
-      return allQuestions[currentSubject] || [];
     }
 
     function loadQuestion() {
@@ -297,21 +292,25 @@
         const div = document.createElement('div');
         const inputId = `opt-${currentIndex}-${i}`;
         div.innerHTML = `
-          <input type="radio" name="ans" id="${inputId}" value="${opt}">
+          <input type="radio" name="ans-${currentIndex}" id="${inputId}" value="${opt}">
           <label for="${inputId}">${opt}</label>
         `;
 
         div.addEventListener('click', function() {
-          if (hasAnswered) return;
           document.getElementById(inputId).checked = true;
-          hasAnswered = true;
 
           const isCorrect = opt.trim() === q.answer.trim();
           showFeedback(isCorrect, q.answer, false);
+
+          document.getElementById('next-btn').disabled = true;
+
+          Array.from(optsDiv.children).forEach(child => child.style.pointerEvents = 'none');
         });
 
         optsDiv.appendChild(div);
       });
+
+      document.getElementById('next-btn').disabled = false;
     }
 
     function showFeedback(isCorrect, correctAns, isSkip = false) {
@@ -323,21 +322,27 @@
         feedback.innerHTML = '✅ बरोबर!<br>+१ गुण 🔥';
         feedback.classList.add('correct');
       } else {
-        feedback.innerHTML = isSkip ? 'Skipped!<br>योग्य उत्तर: ' + correctAns : '❌ चुकीचे!<br>योग्य उत्तर: ' + correctAns;
+        if (isSkip) {
+          feedback.innerHTML = 'Skipped!<br>योग्य उत्तर: ' + correctAns;
+        } else {
+          feedback.innerHTML = '❌ चुकीचे!<br>योग्य उत्तर: ' + correctAns;
+        }
         feedback.classList.add('wrong');
       }
 
       feedback.classList.add('show');
-      setTimeout(() => feedback.classList.remove('show'), 2800);
+
+      setTimeout(() => {
+        feedback.classList.remove('show');
+        currentIndex++;
+        loadQuestion();
+      }, 3500);
     }
 
     function nextQuestion() {
       const q = questions[currentIndex];
-      if (!hasAnswered && q) {
-        showFeedback(false, q.answer, true);
-      }
-      currentIndex++;
-      loadQuestion();
+      showFeedback(false, q.answer, true);
+      document.getElementById('next-btn').disabled = true;
     }
 
     function showResult() {
@@ -360,32 +365,38 @@
     function restartSameQuiz() {
       document.getElementById('result-screen').style.display = 'none';
       document.getElementById('quiz-screen').style.display = 'block';
-
       currentIndex = 0;
       score = 0;
-      hasAnswered = false;
 
-      let subjectQs = getSubjectQuestions();
-      questions = [...subjectQs].sort(() => Math.random() - 0.5).slice(0, Math.min(selectedNum, subjectQs.length || 0));
+      // पुन्हा तेच प्रश्न सेट घेऊन नव्याने shuffle करतो
+      let subjectQs = [];
+      if (currentSubject === 'anatomy' || currentSubject === 'kriya') {
+        let ayurKey = currentSubject + 'Ayurvedic';
+        let modKey = currentSubject + 'Modern';
+        if (currentPart === 'ayurvedic') subjectQs = allQuestions[ayurKey];
+        else if (currentPart === 'modern') subjectQs = allQuestions[modKey];
+        else subjectQs = [...allQuestions[ayurKey], ...allQuestions[modKey]];
+      } else {
+        subjectQs = allQuestions[currentSubject] || [];
+      }
 
+      questions = [...subjectQs].sort(() => Math.random() - 0.5).slice(0, Math.min(selectedNum, subjectQs.length));
       loadQuestion();
     }
 
-    function goToHome() {
+    function restart() {
       document.getElementById('result-screen').style.display = 'none';
       document.getElementById('quiz-screen').style.display = 'none';
       document.getElementById('num-screen').style.display = 'none';
       document.getElementById('sub-screen').style.display = 'none';
       document.getElementById('subject-screen').style.display = 'block';
-
       currentSubject = '';
       currentPart = '';
       selectedNum = 10;
       questions = [];
       score = 0;
       currentIndex = 0;
-      hasAnswered = false;
     }
   </script>
 </body>
-</html>
+  </html> 
