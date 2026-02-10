@@ -1,121 +1,128 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tourist Finder</title>
+<title>BAMS MCQ Practice</title>
+
 <style>
-body{font-family:Arial;margin:0;background:#f2f2f2}
-header{background:#0d6efd;color:#fff;text-align:center;padding:15px;font-size:20px}
-.container{padding:15px}
-input,button{
- width:100%;padding:12px;margin-top:10px;
- border-radius:6px;font-size:16px;border:1px solid #ccc
+body{
+  font-family: Arial, sans-serif;
+  text-align:center;
+  background:#f4f6ff;
 }
-button{background:#0d6efd;color:#fff;border:none}
-.tabs{display:flex;margin-top:10px}
-.tab{
- flex:1;text-align:center;padding:10px;
- background:#ddd;border-radius:6px;margin:2px;cursor:pointer
+h1,h2{color:#333;}
+.grid{
+  display:grid;
+  grid-template-columns: repeat(2,1fr);
+  gap:15px;
+  max-width:300px;
+  margin:20px auto;
 }
-.tab.active{background:#0d6efd;color:#fff}
-.place{background:#fff;margin-top:10px;padding:10px;border-radius:6px}
-.small{font-size:13px;color:#555}
-#loader{text-align:center;font-size:18px;margin-top:15px;display:none}
-.spin{animation:spin 1s linear infinite;display:inline-block}
-@keyframes spin{100%{transform:rotate(360deg)}}
+button{
+  padding:15px;
+  border:none;
+  background:#6c63ff;
+  color:white;
+  font-size:16px;
+  border-radius:10px;
+  cursor:pointer;
+}
+button:hover{background:#554fd8;}
+#quizBox button{width:100%; margin:5px 0;}
 </style>
 </head>
 
 <body>
-<header>🌍 Tourist Finder</header>
 
-<div class="container">
-<input id="city" placeholder="Enter city name">
-<button onclick="searchCity()">🔍 Search City</button>
-<button onclick="getLocation()">📡 Use My Location</button>
+<h1>📚 BAMS MCQ PRACTICE</h1>
 
-<div class="tabs">
- <div class="tab active" id="tourTab" onclick="setMode('tourism')">🏞 Tourist</div>
- <div class="tab" id="hotelTab" onclick="setMode('hotel')">🏨 Hotels</div>
+<div id="subjectBox">
+  <h2>Select Your Subject 👇</h2>
+  <div class="grid">
+    <button onclick="selectSubject('anatomy')">🦴 Anatomy</button>
+    <button onclick="selectSubject('physiology')">❤️ Physiology</button>
+    <button onclick="selectSubject('padarth')">📘 Padarth Vigyan</button>
+    <button onclick="selectSubject('sanskrit')">🕉️ Sanskrit</button>
+    <button onclick="selectSubject('samhita')">📜 Samhita</button>
+  </div>
 </div>
 
-<div id="loader">🔍 Searching... <span class="spin">⏳</span></div>
-<div id="results"></div>
+<div id="countBox" style="display:none;">
+  <h2>How many MCQs? 🤔</h2>
+  <div class="grid">
+    <button onclick="startQuiz(10)">10</button>
+    <button onclick="startQuiz(20)">20</button>
+    <button onclick="startQuiz(30)">30</button>
+    <button onclick="startQuiz(40)">40</button>
+    <button onclick="startQuiz(50)">50</button>
+  </div>
+</div>
+
+<div id="quizBox" style="display:none;">
+  <h2 id="question"></h2>
+  <div id="options"></div>
+  <button onclick="nextQuestion()">Next ➡️</button>
 </div>
 
 <script>
-let mode="tourism";
-let currentPos=null;
+const data = {
+ anatomy:[
+  {q:"How many bones in human body?", o:["206","208","210","200"], a:0},
+  {q:"Scapula is?", o:["Flat","Long","Short","Irregular"], a:0}
+ ],
+ physiology:[
+  {q:"Normal pulse rate?", o:["60-100","40-60","100-120","30-50"], a:0}
+ ],
+ padarth:[
+  {q:"Tridosha are?", o:["Vata Pitta Kapha","Rasa Rakta Mamsa","Agni","Dhatu"], a:0}
+ ],
+ sanskrit:[
+  {q:"रामः is?", o:["Nominative","Accusative","Genitive","Locative"], a:0}
+ ],
+ samhita:[
+  {q:"Charaka Samhita is of?", o:["Kaya Chikitsa","Shalya","Shalakya","Agada"], a:0}
+ ]
+};
 
-function setMode(m){
- mode=m;
- tourTab.classList.remove("active");
- hotelTab.classList.remove("active");
- if(m==="tourism") tourTab.classList.add("active");
- else hotelTab.classList.add("active");
- if(currentPos) showPlaces(currentPos);
+let questions=[], index=0, score=0;
+
+function selectSubject(sub){
+  window.subject=sub;
+  document.getElementById("subjectBox").style.display="none";
+  document.getElementById("countBox").style.display="block";
 }
 
-async function searchCity(){
- let city=document.getElementById("city").value;
- if(!city) return alert("Enter city");
- loader.style.display="block";
- const geo=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${city}`);
- const loc=await geo.json();
- if(!loc[0]){alert("City not found"); loader.style.display="none"; return;}
- currentPos={coords:{latitude:loc[0].lat,longitude:loc[0].lon}};
- showPlaces(currentPos);
+function startQuiz(n){
+  questions = data[window.subject].slice(0,n);
+  document.getElementById("countBox").style.display="none";
+  document.getElementById("quizBox").style.display="block";
+  index=0; score=0;
+  showQuestion();
 }
 
-function getLocation(){
- loader.style.display="block";
- navigator.geolocation.getCurrentPosition(p=>{
-   currentPos=p; showPlaces(p);
- },()=>alert("Permission denied"));
+function showQuestion(){
+  let q = questions[index];
+  document.getElementById("question").innerText = q.q;
+  let optBox = document.getElementById("options");
+  optBox.innerHTML="";
+  q.o.forEach((op,i)=>{
+    let b = document.createElement("button");
+    b.innerText = op;
+    b.onclick = ()=>check(i);
+    optBox.appendChild(b);
+  });
 }
 
-async function showPlaces(pos){
- let lat=pos.coords.latitude;
- let lon=pos.coords.longitude;
+function check(i){
+  if(i===questions[index].a) score++;
+}
 
- let filter = mode==="tourism"
-  ? '["tourism"~"attraction|museum|viewpoint|zoo|theme_park|park|fort|monument|temple"]'
-  : '["tourism"~"hotel|guest_house|resort"]';
-
- const query=`
- [out:json][timeout:20];
- (
-   node(around:50000,${lat},${lon})${filter};
- );
- out 50;`;
-
- const res=await fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:query});
- const data=await res.json();
-
- function dist(a,b,c,d){
-  let R=6371,dLat=(c-a)*Math.PI/180,dLon=(d-b)*Math.PI/180;
-  let x=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLon/2)**2;
-  return R*(2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)));
- }
-
- let places=data.elements.map(p=>({
-  name:p.tags.name||"Unnamed",
-  distance:dist(lat,lon,p.lat,p.lon)
- }));
-
- places.sort((a,b)=>a.distance-b.distance);
-
- loader.style.display="none";
- results.innerHTML="";
- places.slice(0,30).forEach((p,i)=>{
-  results.innerHTML+=`
-   <div class="place">
-    <b>🏆 #${i+1} ${p.name}</b>
-    <div class="small">📏 ${p.distance.toFixed(1)} km away</div>
-   </div>`;
- });
+function nextQuestion(){
+  index++;
+  if(index<questions.length) showQuestion();
+  else alert("🎯 Your Score: "+score);
 }
 </script>
+
 </body>
 </html>
