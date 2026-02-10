@@ -37,7 +37,7 @@
     }
     button:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.5); }
 
-    /* Subject buttons colors */
+    /* Subject buttons */
     button[data-subject="anatomy"] { background: #f4d03f; color: #1a1a1a; }
     button[data-subject="anatomy"]:hover { background: #f1c40f; }
 
@@ -237,7 +237,7 @@
       { question: "पित्त दोषाचे मुख्य गुण?", options: ["उष्ण, तीक्ष्ण, द्रव", "रूक्ष, शीत", "गुरु, मंद", "लघु, स्थिर"], answer: "उष्ण, तीक्ष्ण, द्रव" },
       { question: "कफ दोषाचे मुख्य गुण?", options: ["स्निग्ध, गुरु, शीत", "रूक्ष, लघु", "तीक्ष्ण, उष्ण", "द्रव, मंद"], answer: "स्निग्ध, गुरु, शीत" },
       { question: "प्राण वायूचे मुख्य कार्य?", options: ["श्वसन आणि हृदयाचे कार्य", "पचन", "उत्सर्जन", "रक्त निर्मिती"], answer: "श्वसन आणि हृदयाचे कार्य" },
-      { question: "समाना वायूचे कार्य?", options: ["पचन और अवशोषण", "श्वसन", "उत्सर्जन", "रक्ताभिसरण"], answer: "पचन और अवशोषण" },
+      { question: "समाना वायूचे कार्य?", options: ["पचन आणि अवशोषण", "श्वसन", "उत्सर्जन", "रक्ताभिसरण"], answer: "पचन आणि अवशोषण" },
       { question: "अपाना वायूचे कार्य?", options: ["मल-मूत्र उत्सर्जन", "पचन", "श्वसन", "रक्त निर्मिती"], answer: "मल-मूत्र उत्सर्जन" }
     ];
 
@@ -369,10 +369,11 @@
         const div = document.createElement('div');
         div.innerHTML = `<input type="radio" name="ans" value="${opt}" id="opt${i}">
                          <label for="opt${i}">${opt}</label>`;
-        div.onclick = () => {
+        div.onclick = function() {
+          // Set radio checked
           document.getElementById('opt' + i).checked = true;
           document.getElementById('next-btn').disabled = false;
-          // Auto feedback on click
+          // Show feedback immediately
           showFeedback(opt.trim() === q.answer.trim(), q.answer);
         };
         optsDiv.appendChild(div);
@@ -408,23 +409,12 @@
     }
 
     function nextQuestion() {
-      const selected = document.querySelector('input[name="ans"]:checked');
-      if (selected) {
-        // If already selected, feedback already shown on click
-        // Just move next
-        currentIndex++;
-        if (currentIndex < questions.length) {
-          loadQuestion();
-        } else {
-          showResult();
-        }
+      // Backup - if no selection, move next without feedback
+      currentIndex++;
+      if (currentIndex < questions.length) {
+        loadQuestion();
       } else {
-        currentIndex++;
-        if (currentIndex < questions.length) {
-          loadQuestion();
-        } else {
-          showResult();
-        }
+        showResult();
       }
     }
 
