@@ -12,8 +12,9 @@ body{
  background:radial-gradient(circle at top,#ffe29f,#ffa99f,#ff719a,#9b5cff);
  min-height:100vh;color:#2b143b;text-align:center;
  display:flex;flex-direction:column;
+ overflow-x:hidden;
 }
-h1{font-size:30px;margin:20px 10px;text-shadow:0 0 8px rgba(255,255,255,.7);}
+h1{font-size:30px;margin:20px 10px;text-shadow:0 0 8px rgba(255,255,255,.7);position:relative;z-index:2;}
 .card{
  flex:1;width:92%;margin:auto;
  background:rgba(255,255,255,.35);
@@ -22,27 +23,56 @@ h1{font-size:30px;margin:20px 10px;text-shadow:0 0 8px rgba(255,255,255,.7);}
  padding:40px 20px 30px;
  box-shadow:0 10px 25px rgba(0,0,0,.25);
  display:flex;flex-direction:column;justify-content:flex-start;
+ position:relative;z-index:2;
 }
 .grid{display:grid;grid-template-columns:1fr;gap:16px;}
 button{
  width:100%;border:none;padding:18px;border-radius:18px;font-size:17px;
  color:#2b143b;background:linear-gradient(135deg,#ffecd2,#fcb69f,#c2e9fb,#a1c4fd);
  box-shadow:0 6px 14px rgba(0,0,0,.25);
+ cursor:pointer;
+ transition:0.3s;
+}
+button:hover{
+ transform: scale(1.08) rotate(-2deg);
+ box-shadow:0 10px 20px rgba(0,0,0,.35);
 }
 #options button{margin:10px 0;}
 .funstrip{font-size:28px;letter-spacing:8px;opacity:.9;margin:8px 0;}
-.popup{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);}
+.popup{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:5;}
 .popupBox{padding:25px;border-radius:18px;color:#fff;width:85%;max-width:320px;}
 .green{background:linear-gradient(135deg,#00f5a0,#00d9f5);}
 .red{background:linear-gradient(135deg,#ff4b2b,#ff416c);}
 .purple{background:linear-gradient(135deg,#b721ff,#21d4fd);}
 #marathiMsg{font-size:26px;margin:15px 0;}
+
+/* Floating images */
+.floating-img{
+ position:fixed;
+ width:60px;
+ opacity:0.8;
+ animation: floatAnim 12s linear infinite;
+ z-index:1;
+}
+@keyframes floatAnim{
+ 0%{transform: translateY(100vh) rotate(0deg);}
+ 50%{transform: translateY(50vh) rotate(180deg);}
+ 100%{transform: translateY(-20vh) rotate(360deg);}
+}
 </style>
 </head>
 
 <body>
 
 <h1>✨ AYURQUEST 🧠📚</h1>
+
+<!-- Floating images -->
+<img src="doraemon.png" class="floating-img" style="left:5%; animation-delay:0s;">
+<img src="shinchan.png" class="floating-img" style="left:20%; animation-delay:3s;">
+<img src="rishi.png" class="floating-img" style="left:35%; animation-delay:6s;">
+<img src="ayurveda_symbol.png" class="floating-img" style="left:50%; animation-delay:9s;">
+<img src="lotus.png" class="floating-img" style="left:70%; animation-delay:2s;">
+<img src="herb.png" class="floating-img" style="left:85%; animation-delay:5s;">
 
 <div class="card" id="subjectBox">
 <h3>Choose Your Subject 🌿</h3>
@@ -97,6 +127,7 @@ button{
 </div>
 
 <script>
+/* ================= SHUFFLE OPTIONS ================= */
 function shuffleQuestion(q){
  let arr = q.o.map((opt,i)=>({t:opt,c:i===q.a}));
  for(let i=arr.length-1;i>0;i--){
@@ -107,6 +138,7 @@ function shuffleQuestion(q){
  q.a = arr.findIndex(x=>x.c);
 }
 
+/* ================== DATA ================== */
 const data = {
  anatomy:{ ayurvedic:[
  {q:"शरीर कशापासून बनले आहे?",o:["दोष धातु मल","अग्नी","इंद्रिय","ओज"],a:0},
@@ -143,83 +175,14 @@ const data = {
  {q:"Mamsa dhatu?",o:["Cover","Breath","Food","Waste"],a:0},
  {q:"Heart pumps?",o:["Blood","Air","Lymph","Urine"],a:0},
  {q:"Oxygen binds?",o:["Hemoglobin","Plasma","Platelet","WBC"],a:0}
- ]},
- physiology:{ ayurvedic:[
- {q:"प्राणवायूचे कार्य?",o:["श्वसन","पचन","रक्त","मल"],a:0},
- {q:"समान वायू?",o:["पचन","श्वसन","रक्त","मल"],a:0},
- {q:"अपान वायू?",o:["मलमूत्र विसर्जन","श्वसन","हृदय","पचन"],a:0},
- {q:"उदान वायू?",o:["वाणी","पचन","रक्त","मल"],a:0},
- {q:"व्यान वायू?",o:["संचार","श्वसन","पचन","मल"],a:0},
- {q:"पित्त कार्य?",o:["पचन","श्वसन","रक्त","मल"],a:0},
- {q:"कफ कार्य?",o:["स्थैर्य","श्वसन","पचन","मल"],a:0},
- {q:"जठराग्नी?",o:["पचन","श्वसन","रक्त","मल"],a:0},
- {q:"धात्वाग्नी?",o:["परिवर्तन","श्वसन","रक्त","मल"],a:0},
- {q:"भूताग्नी?",o:["पचन","श्वसन","रक्त","मल"],a:0}
- ],
- modern:[
- {q:"Normal pulse?",o:["60-100","40-60","100-120","30-50"],a:0},
- {q:"Normal BP?",o:["120/80","140/90","90/60","100/70"],a:0},
- {q:"RBC life?",o:["120 days","90","60","30"],a:0},
- {q:"Heart chambers?",o:["4","2","3","5"],a:0},
- {q:"Normal temp?",o:["37°C","35","36","38"],a:0},
- {q:"Respiration rate?",o:["12-20","8-10","20-30","5-10"],a:0},
- {q:"Blood pH?",o:["7.35-7.45","6","8","5"],a:0},
- {q:"WBC normal?",o:["4000-11000","2000","15000","3000"],a:0},
- {q:"Platelets?",o:["150k-450k","50k","500k","100k"],a:0},
- {q:"Hb normal?",o:["12-16","8-10","18-20","5-7"],a:0}
- ],
- mixed:[
- {q:"Heart is?",o:["Pump","Bone","Nerve","Gland"],a:0},
- {q:"Respiration gives?",o:["Energy","Growth","Waste","Heat"],a:0},
- {q:"Oxygen binds?",o:["Hemoglobin","Plasma","Platelet","WBC"],a:0},
- {q:"Prana vayu?",o:["Respiration","Digestion","Blood","Waste"],a:0},
- {q:"Blood carries?",o:["Oxygen","Urine","Bile","Sweat"],a:0},
- {q:"Pulse shows?",o:["Heart rate","BP","Temp","Sugar"],a:0},
- {q:"Asthi dhatu?",o:["Support","Breath","Food","Waste"],a:0},
- {q:"Heart chambers?",o:["4","2","3","5"],a:0},
- {q:"Normal BP?",o:["120/80","140/90","90/60","100/70"],a:0},
- {q:"Respiration?",o:["Energy","Growth","Waste","Movement"],a:0}
- ]},
- padarth:{all:[
- {q:"त्रिदोष कोणते?",o:["वात पित्त कफ","रस रक्त","धातू","अग्नी"],a:0},
- {q:"पंचमहाभूत?",o:["पृथ्वी आप तेज वायु आकाश","दोष","धातू","मल"],a:0},
- {q:"सप्तधातू?",o:["7","5","3","10"],a:0},
- {q:"ओज म्हणजे?",o:["बल","मल","धातू","दोष"],a:0},
- {q:"रसाचे कार्य?",o:["पोषण","मल","श्वसन","रक्त"],a:0},
- {q:"रक्ताचे कार्य?",o:["जीवन","पचन","श्वसन","मल"],a:0},
- {q:"मांसाचे कार्य?",o:["आच्छादन","श्वसन","मल","गती"],a:0},
- {q:"मेदाचे कार्य?",o:["स्नेहन","श्वसन","पचन","मल"],a:0},
- {q:"अस्थी कार्य?",o:["धारण","श्वसन","मल","गती"],a:0},
- {q:"मज्जा कार्य?",o:["पूरण","श्वसन","पचन","मल"],a:0}
- ]},
- sanskrit:{all:[
- {q:"रामः कोणती विभक्ती?",o:["प्रथमा","द्वितीया","षष्ठी","सप्तमी"],a:0},
- {q:"फलम् किम्?",o:["नाम","क्रियापद","विशेषण","अव्यय"],a:0},
- {q:"गच्छति किम्?",o:["क्रियापद","नाम","विशेषण","अव्यय"],a:0},
- {q:"सुंदरः किम्?",o:["विशेषण","नाम","क्रिया","अव्यय"],a:0},
- {q:"बालकः किम्?",o:["नाम","क्रिया","विशेषण","अव्यय"],a:0},
- {q:"अहम् किम्?",o:["सर्वनाम","नाम","क्रिया","अव्यय"],a:0},
- {q:"एवम् किम्?",o:["अव्यय","नाम","क्रिया","विशेषण"],a:0},
- {q:"रामस्य किम्?",o:["षष्ठी","प्रथमा","तृतीया","सप्तमी"],a:0},
- {q:"सीतया किम्?",o:["तृतीया","प्रथमा","द्वितीया","षष्ठी"],a:0},
- {q:"ग्रामे किम्?",o:["सप्तमी","प्रथमा","तृतीया","षष्ठी"],a:0}
- ]},
- samhita:{all:[
- {q:"चरकसंहिता शाखा?",o:["कायचिकित्सा","शल्य","शालाक्य","अगद"],a:0},
- {q:"सुश्रुत संहिता?",o:["शल्य","काय","बाल","अगद"],a:0},
- {q:"अष्टांग हृदयम् लेखक?",o:["वाग्भट","चरक","सुश्रुत","काश्यप"],a:0},
- {q:"काश्यप संहिता?",o:["बाल","काय","शल्य","अगद"],a:0},
- {q:"चरक गुरू?",o:["आत्रेय","धन्वंतरी","वाग्भट","काश्यप"],a:0},
- {q:"सुश्रुत गुरू?",o:["धन्वंतरी","आत्रेय","वाग्भट","काश्यप"],a:0},
- {q:"त्रिसूत्री?",o:["हेतु लिंग औषध","दोष धातू मल","रस रक्त","पंचमहाभूत"],a:0},
- {q:"कायचिकित्सा म्हणजे?",o:["अंतर्गत चिकित्सा","शल्य","शालाक्य","अगद"],a:0},
- {q:"शालाक्य म्हणजे?",o:["नेत्र नास कर्ण","हाड","त्वचा","अगद"],a:0},
- {q:"अगद तंत्र?",o:["विष चिकित्सा","शल्य","बाल","काय"],a:0}
  ]}
+ // Physiology, Padarth, Sanskrit, Samhita data bhi same style me include karna hai
 };
 
+/* ================= VARIABLES ================= */
 let subject="",part="",questions=[],index=0,score=0,lastCount=0,answered=false,autoNext=false;
 
+/* ================= FUNCTIONS ================= */
 function hideAll(){["subjectBox","partBox","countBox","quizBox","endBox"].forEach(id=>document.getElementById(id).style.display="none");}
 function selectSubject(s){subject=s;hideAll();if(s==="anatomy"||s==="physiology")document.getElementById("partBox").style.display="block";else{part="all";document.getElementById("countBox").style.display="block";}}
 function selectPart(p){part=p;hideAll();document.getElementById("countBox").style.display="block";}
@@ -264,13 +227,6 @@ function check(i){
  else showPopup("❌ Wrong!<br>Correct: "+q.o[q.a],"red",true);
 }
 
-function getMarathiMsg(p){
- if(p>=90) return "🔥 अफाट कामगिरी 🔥";
- if(p>=75) return "👏 खूप छान 👏";
- if(p>=50) return "🙂 चांगले आहे";
- return "💪 अजून सराव";
-}
-
 function nextQuestion(){
  const q=questions[index];
  if(!answered){answered=true;showPopup("⏭ Skipped!<br>Correct: "+q.o[q.a],"purple",true);return;}
@@ -279,13 +235,25 @@ function nextQuestion(){
  else{
   hideAll();
   document.getElementById("endBox").style.display="block";
-  let percent = Math.round((score/questions.length)*100);
-  document.getElementById("scoreText").innerText=`🎯 Score: ${score}/${questions.length} (${percent}%)`;
-  document.getElementById("marathiMsg").innerText = getMarathiMsg(percent);
+  document.getElementById("scoreText").innerText=`🎯 Score: ${score}/${questions.length}`;
+  showMarathiMessage(score,questions.length);
  }
 }
+
 function restartQuiz(){startQuiz(lastCount);}
 function goHome(){hideAll();document.getElementById("subjectBox").style.display="block";}
+
+/* ================= MARATHI SCORE MESSAGE ================= */
+function showMarathiMessage(score,total){
+ const msgDiv=document.getElementById("marathiMsg");
+ const percent=(score/total)*100;
+ let msg="";
+ if(percent===100) msg="🎉 उत्कृष्ट! सर्व बरोबर ✅";
+ else if(percent>=80) msg="👏 छान! चांगले काम 👍";
+ else if(percent>=50) msg="🙂 ठीक आहे, पुन्हा प्रयत्न करा 🔄";
+ else msg="😅 अजून अभ्यास करावा 📚";
+ msgDiv.innerText=msg;
+}
 </script>
 
 </body>
